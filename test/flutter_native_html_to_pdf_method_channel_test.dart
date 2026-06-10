@@ -65,7 +65,7 @@ void main() {
 
       final bytes = await converter.convertHtmlToPdfBytes(
         html: html,
-        pageSize: PdfPageSize.letter,
+        options: PdfOptions(pageSize: PdfPageSize.letter),
       );
 
       expect(bytes, isNotEmpty);

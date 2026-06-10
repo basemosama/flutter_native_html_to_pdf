@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 
-import 'pdf_page_size.dart';
+import '../models/pdf_options.dart';
+import '../utils/html_pdf_helper.dart';
 
 /// Converts HTML content to PDF using the native platform's WebView engine.
 ///
@@ -30,12 +31,16 @@ class HtmlToPdfConverter {
     required String html,
     required String targetDirectory,
     required String targetName,
-    PdfPageSize? pageSize,
+    PdfOptions? options,
   }) async {
+    final pageSize = options?.pageSize;
+    final preparedHtml = options?.wrapOptions != null
+        ? HtmlPdfHelper.wrapHtml(html, options: options!.wrapOptions!)
+        : html;
     final String? filePath = await _channel.invokeMethod<String>(
       'convertHtmlToPdf',
       {
-        'html': html,
+        'html': preparedHtml,
         'targetDirectory': targetDirectory,
         'targetName': targetName,
         if (pageSize != null) 'pageWidth': pageSize.width,
@@ -61,12 +66,16 @@ class HtmlToPdfConverter {
   /// Throws a [PlatformException] on native errors.
   Future<Uint8List> convertHtmlToPdfBytes({
     required String html,
-    PdfPageSize? pageSize,
+    PdfOptions? options,
   }) async {
+    final pageSize = options?.pageSize;
+    final preparedHtml = options?.wrapOptions != null
+        ? HtmlPdfHelper.wrapHtml(html, options: options!.wrapOptions!)
+        : html;
     final Uint8List? bytes = await _channel.invokeMethod<Uint8List>(
       'convertHtmlToPdfBytes',
       {
-        'html': html,
+        'html': preparedHtml,
         if (pageSize != null) 'pageWidth': pageSize.width,
         if (pageSize != null) 'pageHeight': pageSize.height,
       },
@@ -91,23 +100,23 @@ class FlutterNativeHtmlToPdf {
     required String html,
     required String targetDirectory,
     required String targetName,
-    PdfPageSize? pageSize,
+    PdfOptions? options,
   }) async {
     return _converter.convertHtmlToPdf(
       html: html,
       targetDirectory: targetDirectory,
       targetName: targetName,
-      pageSize: pageSize,
+      options: options,
     );
   }
 
   Future<Uint8List?> convertHtmlToPdfBytes({
     required String html,
-    PdfPageSize? pageSize,
+    PdfOptions? options,
   }) async {
     return _converter.convertHtmlToPdfBytes(
       html: html,
-      pageSize: pageSize,
+      options: options,
     );
   }
 }

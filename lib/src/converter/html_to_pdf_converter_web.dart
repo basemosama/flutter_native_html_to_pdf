@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 
-import 'pdf_page_size.dart';
+import '../models/pdf_options.dart';
+import '../utils/html_pdf_helper.dart';
 
 class HtmlToPdfConverter {
   static const MethodChannel _channel =
@@ -13,7 +14,7 @@ class HtmlToPdfConverter {
     required String html,
     required String targetDirectory,
     required String targetName,
-    PdfPageSize? pageSize,
+    PdfOptions? options,
   }) {
     throw UnsupportedError(
       'convertHtmlToPdf is not supported on web. '
@@ -23,12 +24,16 @@ class HtmlToPdfConverter {
 
   Future<Uint8List> convertHtmlToPdfBytes({
     required String html,
-    PdfPageSize? pageSize,
+    PdfOptions? options,
   }) async {
+    final pageSize = options?.pageSize;
+    final preparedHtml = options?.wrapOptions != null
+        ? HtmlPdfHelper.wrapHtml(html, options: options!.wrapOptions!)
+        : html;
     final Uint8List? bytes = await _channel.invokeMethod<Uint8List>(
       'convertHtmlToPdfBytes',
       {
-        'html': html,
+        'html': preparedHtml,
         if (pageSize != null) 'pageWidth': pageSize.width,
         if (pageSize != null) 'pageHeight': pageSize.height,
       },
@@ -53,7 +58,7 @@ class FlutterNativeHtmlToPdf {
     required String html,
     required String targetDirectory,
     required String targetName,
-    PdfPageSize? pageSize,
+    PdfOptions? options,
   }) {
     throw UnsupportedError(
       'convertHtmlToPdf is not supported on web. '
@@ -63,11 +68,11 @@ class FlutterNativeHtmlToPdf {
 
   Future<Uint8List?> convertHtmlToPdfBytes({
     required String html,
-    PdfPageSize? pageSize,
+    PdfOptions? options,
   }) async {
     return _converter.convertHtmlToPdfBytes(
       html: html,
-      pageSize: pageSize,
+      options: options,
     );
   }
 }

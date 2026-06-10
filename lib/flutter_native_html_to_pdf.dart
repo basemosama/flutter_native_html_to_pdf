@@ -30,7 +30,9 @@
 /// ```
 library;
 
-export 'src/html_to_pdf_converter_stub.dart'
-    if (dart.library.io) 'src/html_to_pdf_converter_io.dart'
-    if (dart.library.js_interop) 'src/html_to_pdf_converter_web.dart';
-export 'src/pdf_page_size.dart';
+export 'src/converter/html_to_pdf_converter_stub.dart'
+    if (dart.library.io) 'src/converter/html_to_pdf_converter_io.dart'
+    if (dart.library.js_interop) 'src/converter/html_to_pdf_converter_web.dart';
+export 'src/models/pdf_options.dart';
+export 'src/models/pdf_page_size.dart';
+export 'src/utils/html_pdf_helper.dart';

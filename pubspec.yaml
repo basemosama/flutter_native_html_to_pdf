@@ -30,4 +30,4 @@ flutter:
         pluginClass: FlutterNativeHtmlToPdfPlugin
       web:
         pluginClass: FlutterNativeHtmlToPdfWeb
-        fileName: flutter_native_html_to_pdf_web.dart
+        fileName: src/web/flutter_native_html_to_pdf_web.dart

@@ -129,7 +129,7 @@ class _MyAppState extends State<MyApp> {
 
       final bytes = await _converter.convertHtmlToPdfBytes(
         html: htmlContent!,
-        pageSize: pageSize,
+        options: PdfOptions(pageSize: pageSize),
       );
       print(
         'PDF generated! ${bytes.length} bytes',
@@ -175,7 +175,7 @@ class _MyAppState extends State<MyApp> {
         html: htmlContent!,
         targetDirectory: dir.path,
         targetName: 'report',
-        pageSize: pageSize,
+        options: PdfOptions(pageSize: pageSize),
       );
 
       setState(() => generatedPdfFilePath = file.path);
