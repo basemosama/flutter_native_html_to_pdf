@@ -1,0 +1,884 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <title>Report</title>
+    </head>
+    <body
+        style="margin: 0; padding: 0;
+                 direction: ltr;
+                 font-family: system-ui, sans-serif;"
+    >
+        <style>
+        .report-root {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f4f7fb;
+            color: #1f2933;
+            padding: 24px;
+        }
+        .report-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+            padding: 24px 28px;
+            margin-bottom: 24px;
+        }
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 24px;
+        }
+        .report-title-block h1 {
+            margin: 0 0 4px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+        }
+        .report-title-block span {
+            display: block;
+            font-size: 10px;
+            color: #6b7280;
+        }
+        .report-badges {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .report-badge {
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #eef2ff;
+            color: #3730a3;
+        }
+        .report-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #e5f0ff;
+            color: #1d4ed8;
+        }
+        .report-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+        .report-mini-card {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid #e5e7eb;
+        }
+        .report-mini-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        .report-mini-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #111827;
+        }
+        .report-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px 16px;
+            margin-top: 8px;
+        }
+        .report-metric-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 2px;
+        }
+        .report-metric-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #111827;
+        }
+        .report-table-wrapper {
+            margin-top: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .report-table thead {
+            background: #eff6ff;
+        }
+        .report-table th {
+            text-align: left;
+            padding: 10px 12px;
+            font-weight: 600;
+            color: #111827;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .report-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .report-table tr:nth-child(even) td {
+            background: #f9fafb;
+        }
+        .report-alert-value {
+            font-weight: 700;
+            color: #b91c1c;
+        }
+        .report-kv-row {
+            display: flex;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .report-kv-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            min-width: 160px;
+        }
+        .report-kv-value {
+            font-size: 12px;
+            color: #111827;
+        }
+    </style><div class="report-root">        <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 20px; direction: ltr; gap: 16px;">
+            <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgMjA3LjUxNCI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogIzExNGVmNjsKICAgICAgfQoKICAgICAgLmNscy0yLCAuY2xzLTMgewogICAgICAgIGZpbGw6ICMwODAwNTY7CiAgICAgIH0KCiAgICAgIC5jbHMtMyB7CiAgICAgICAgZm9udC1mYW1pbHk6IFNlZ29lVUktSXRhbGljLCAnU2Vnb2UgVUknOwogICAgICAgIGZvbnQtc2l6ZTogNDMuOTc4cHg7CiAgICAgICAgZm9udC1zdHlsZTogaXRhbGljOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8Zz4KICAgIDxnPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNDkuNTE0LDczLjI2OGM1LjQ3NCw4LjUzOSw5LjA2LDE4LjQwMywxMC4xNjQsMjkuMDA0aDExLjY3M2w5Ljk1OS0yOS4wMDRoLTMxLjc5NloiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjcxLjA1NCw3My4yNjhsLTQwLjA1Niw0OS4wMzItNy4xMTQtNDkuMDMyaC0zMC43NTVsLTI5LjY2MSw4NS40NzZoMzQuOTE0bDkuODU0LTI4LjIzNiw1LjE0MywyOC4yMzZoMTguODI0bDIyLjc2Mi0yOS4wMDQtOS44NDgsMjkuMDA0aDMxLjA4MWwyOS41NTEtODUuNDc2aC0zNC42OTNaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTMxNS44MjIsNzMuMjY4bC0xMC4xOCwyOS4wMDRoMjJsLTE5LjQ4MSw1Ni40NzJoMzQuOTE0bDE5LjU5Mi01Ni40NzJoMjkuMTA5bDkuOTU5LTI5LjAwNGgtODUuOTEyWiIvPgogICAgPC9nPgogICAgPHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMTYwLjA0NiwxMDkuMzAyYzAsMzYuOTI4LTI5LjkzNCw2Ni44NTctNjYuODU3LDY2Ljg1N1MyNi4zMzIsMTQ2LjIzLDI2LjMzMiwxMDkuMzAyLDU2LjI2Nyw0Mi40NDUsOTMuMTg5LDQyLjQ0NWMyMy42NTEsMCw0NC40NDEsMTIuMjgzLDU2LjMyNSwzMC44MjNoLTU0LjEyMmwtMTAuMTc0LDI5LjAwNGgyMS45OTVsLTE5LjQ4MSw1Ni40NzJoMzQuOTE0bDE5LjU5Mi01Ni40NzJoMTcuNDQxYy4yNDIsMi4zMDguMzY4LDQuNjUzLjM2OCw3LjAzWiIvPgogIDwvZz4KICA8dGV4dCBjbGFzcz0iY2xzLTMiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQwOC4xMjggNjguNzQxKSI+PHRzcGFuIHg9IjAiIHk9IjAiPkdQUzwvdHNwYW4+PC90ZXh0Pgo8L3N2Zz4=" alt="left Logo" style="height: 75px;" />
+        </div>
+        <div class="report-card">
+            <div class="report-header">
+                <div class="report-title-block">
+                    <h1>General information</h1>
+                    <span>Created at: 06/09/2026, 07:46:44 AM</span>
+                    <div class="report-badges"><div class="report-badge">Period: 2026-06-07 00:00:00 — 2026-06-13 23:59:59</div></div>
+                </div>
+            </div>
+        </div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">sub - 1234</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">123456789</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">skw 23333</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">869943057881980</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">2 old farmwear</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">869867036853473</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">أيسوزو غماره ب أ هـ 1548</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">359632104996019</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">UHF - 777</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">863540062423331</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">see worldddddd</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">863014539264480</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">solarGuradX f</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">862636051546644</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">ب ط م  - 7538</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">864636066051760</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">ا د و - 5717</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">350317176154957</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">ظفران - أ ر و - 5727</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">350424068273646</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route start</span>
+                    <span class="report-kv-value">2026-06-07 00:01:20</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route end</span>
+                    <span class="report-kv-value">2026-06-09 10:45:47</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Stop count</span>
+                    <span class="report-kv-value">83</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Top speed</span>
+                    <span class="report-kv-value">105 kph</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">ر ك س 3586</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">352016709740013</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route start</span>
+                    <span class="report-kv-value">2026-06-07 00:04:50</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route end</span>
+                    <span class="report-kv-value">2026-06-09 10:43:37</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Stop count</span>
+                    <span class="report-kv-value">107</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Top speed</span>
+                    <span class="report-kv-value">164 kph</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">777 - update - 7</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">864636065873503</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">speed limit office2ww</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">864636063216424</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">test  FMC650</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">864636066655727</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">ا س ب - 5026</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">350424060475199</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route start</span>
+                    <span class="report-kv-value">2026-06-07 22:40:19</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route end</span>
+                    <span class="report-kv-value">2026-06-09 04:50:19</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Stop count</span>
+                    <span class="report-kv-value">1</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Top speed</span>
+                    <span class="report-kv-value">0 kph</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">7000 أ س س</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">864636065873511</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">test fmc130</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">864636068553391</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">test vehicle 3</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">864636066063781</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">ا ص ن - 6804</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">353691840839038</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route start</span>
+                    <span class="report-kv-value">2026-06-07 05:47:20</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route end</span>
+                    <span class="report-kv-value">2026-06-09 10:44:58</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Stop count</span>
+                    <span class="report-kv-value">18</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Top speed</span>
+                    <span class="report-kv-value">80 kph</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">aea 321</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">864454070632793</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">دينا بضائع أ س س 7000</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">864636065873446</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route start</span>
+                    <span class="report-kv-value">2026-06-08 07:41:52</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route end</span>
+                    <span class="report-kv-value">2026-06-09 10:41:06</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Stop count</span>
+                    <span class="report-kv-value">4</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Top speed</span>
+                    <span class="report-kv-value">99 kph</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">864636069245708ddeffefeffefe</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">864636069245708</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">Mutasim Ruptela Eco5</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">868373078650258</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">ا ص ح - 3556(سوبيش) </div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">860640057289870</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route start</span>
+                    <span class="report-kv-value">2026-06-07 12:17:48</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route end</span>
+                    <span class="report-kv-value">2026-06-09 07:22:50</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Stop count</span>
+                    <span class="report-kv-value">1</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Top speed</span>
+                    <span class="report-kv-value">0 kph</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">س ا ر - 1659</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">353742370411332</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route start</span>
+                    <span class="report-kv-value">2026-06-07 00:00:14</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route end</span>
+                    <span class="report-kv-value">2026-06-09 10:39:13</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Stop count</span>
+                    <span class="report-kv-value">6</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Top speed</span>
+                    <span class="report-kv-value">54 kph</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">I  oس ح د - 7789</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">358480089562633</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">TXTdwdws</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">350424069390738</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route start</span>
+                    <span class="report-kv-value">2026-06-07 23:25:03</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route end</span>
+                    <span class="report-kv-value">2026-06-09 10:45:59</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Stop count</span>
+                    <span class="report-kv-value">65</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Top speed</span>
+                    <span class="report-kv-value">83 kph</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">6096</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">350544501761996</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route start</span>
+                    <span class="report-kv-value">2026-06-07 01:24:35</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route end</span>
+                    <span class="report-kv-value">2026-06-09 10:45:37</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Stop count</span>
+                    <span class="report-kv-value">47</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Top speed</span>
+                    <span class="report-kv-value">96 kph</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">YOOO</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">350317172608196</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route start</span>
+                    <span class="report-kv-value">2026-06-07 03:56:11</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route end</span>
+                    <span class="report-kv-value">2026-06-09 10:45:01</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Stop count</span>
+                    <span class="report-kv-value">247</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Top speed</span>
+                    <span class="report-kv-value">29 kph</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">ruptela test eyesensore</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">868373078666346</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">up e9i29ei9</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">861076084170735</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">ر د أ - 1222 - خالد اسماع</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">353742375722832</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route start</span>
+                    <span class="report-kv-value">2026-06-07 00:57:45</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route end</span>
+                    <span class="report-kv-value">2026-06-09 10:44:00</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Stop count</span>
+                    <span class="report-kv-value">54</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Top speed</span>
+                    <span class="report-kv-value">146 kph</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">ا ر ر - 1303</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">350544502119632</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">ا د ه - 2015</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">353691840938780</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route start</span>
+                    <span class="report-kv-value">2026-06-07 05:19:34</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Route end</span>
+                    <span class="report-kv-value">2026-06-09 10:45:01</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Stop count</span>
+                    <span class="report-kv-value">19</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">Top speed</span>
+                    <span class="report-kv-value">82 kph</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">test</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">864275071006954</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">ا س ح - 7430   canbus</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">860640057213011</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">Name</div>
+                <div class="report-mini-value">147 - a s d</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">IMEI</div>
+                <div class="report-mini-value">147852369512345</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">Period</div>
+                <div class="report-mini-value">2026-06-07 00:00:00 — 2026-06-13 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">No data</p></div></div>
+    </body>
+</html>

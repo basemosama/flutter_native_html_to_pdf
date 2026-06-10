@@ -34,3 +34,4 @@ build/
 # Dart SDK artifacts
 dart-sdk/
 dartsdk-*.zip
+!/android/.gradle/

@@ -1,0 +1,1700 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <title>Report</title>
+    </head>
+    <body
+        style="margin: 0; padding: 0;
+                 direction: rtl;
+                 font-family: Cairo, sans-serif;"
+    >
+        <style>
+        .report-root {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f4f7fb;
+            color: #1f2933;
+            padding: 24px;
+        }
+        .report-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+            padding: 24px 28px;
+            margin-bottom: 24px;
+        }
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 24px;
+        }
+        .report-title-block h1 {
+            margin: 0 0 4px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+        }
+        .report-title-block span {
+            display: block;
+            font-size: 10px;
+            color: #6b7280;
+        }
+        .report-badges {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .report-badge {
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #eef2ff;
+            color: #3730a3;
+        }
+        .report-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #e5f0ff;
+            color: #1d4ed8;
+        }
+        .report-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+        .report-mini-card {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid #e5e7eb;
+        }
+        .report-mini-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        .report-mini-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #111827;
+        }
+        .report-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px 16px;
+            margin-top: 8px;
+        }
+        .report-metric-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 2px;
+        }
+        .report-metric-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #111827;
+        }
+        .report-table-wrapper {
+            margin-top: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .report-table thead {
+            background: #eff6ff;
+        }
+        .report-table th {
+            text-align: left;
+            padding: 10px 12px;
+            font-weight: 600;
+            color: #111827;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .report-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .report-table tr:nth-child(even) td {
+            background: #f9fafb;
+        }
+        .report-alert-value {
+            font-weight: 700;
+            color: #b91c1c;
+        }
+        .report-kv-row {
+            display: flex;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .report-kv-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            min-width: 160px;
+        }
+        .report-kv-value {
+            font-size: 12px;
+            color: #111827;
+        }
+    </style><div class="report-root">        <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 20px; direction: ltr; gap: 16px;">
+            <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgMjA3LjUxNCI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogIzExNGVmNjsKICAgICAgfQoKICAgICAgLmNscy0yLCAuY2xzLTMgewogICAgICAgIGZpbGw6ICMwODAwNTY7CiAgICAgIH0KCiAgICAgIC5jbHMtMyB7CiAgICAgICAgZm9udC1mYW1pbHk6IFNlZ29lVUktSXRhbGljLCAnU2Vnb2UgVUknOwogICAgICAgIGZvbnQtc2l6ZTogNDMuOTc4cHg7CiAgICAgICAgZm9udC1zdHlsZTogaXRhbGljOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8Zz4KICAgIDxnPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNDkuNTE0LDczLjI2OGM1LjQ3NCw4LjUzOSw5LjA2LDE4LjQwMywxMC4xNjQsMjkuMDA0aDExLjY3M2w5Ljk1OS0yOS4wMDRoLTMxLjc5NloiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjcxLjA1NCw3My4yNjhsLTQwLjA1Niw0OS4wMzItNy4xMTQtNDkuMDMyaC0zMC43NTVsLTI5LjY2MSw4NS40NzZoMzQuOTE0bDkuODU0LTI4LjIzNiw1LjE0MywyOC4yMzZoMTguODI0bDIyLjc2Mi0yOS4wMDQtOS44NDgsMjkuMDA0aDMxLjA4MWwyOS41NTEtODUuNDc2aC0zNC42OTNaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTMxNS44MjIsNzMuMjY4bC0xMC4xOCwyOS4wMDRoMjJsLTE5LjQ4MSw1Ni40NzJoMzQuOTE0bDE5LjU5Mi01Ni40NzJoMjkuMTA5bDkuOTU5LTI5LjAwNGgtODUuOTEyWiIvPgogICAgPC9nPgogICAgPHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMTYwLjA0NiwxMDkuMzAyYzAsMzYuOTI4LTI5LjkzNCw2Ni44NTctNjYuODU3LDY2Ljg1N1MyNi4zMzIsMTQ2LjIzLDI2LjMzMiwxMDkuMzAyLDU2LjI2Nyw0Mi40NDUsOTMuMTg5LDQyLjQ0NWMyMy42NTEsMCw0NC40NDEsMTIuMjgzLDU2LjMyNSwzMC44MjNoLTU0LjEyMmwtMTAuMTc0LDI5LjAwNGgyMS45OTVsLTE5LjQ4MSw1Ni40NzJoMzQuOTE0bDE5LjU5Mi01Ni40NzJoMTcuNDQxYy4yNDIsMi4zMDguMzY4LDQuNjUzLjM2OCw3LjAzWiIvPgogIDwvZz4KICA8dGV4dCBjbGFzcz0iY2xzLTMiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQwOC4xMjggNjguNzQxKSI+PHRzcGFuIHg9IjAiIHk9IjAiPkdQUzwvdHNwYW4+PC90ZXh0Pgo8L3N2Zz4=" alt="left Logo" style="height: 75px;" />
+        </div>
+        <div class="report-card">
+            <div class="report-header">
+                <div class="report-title-block">
+                    <h1>معلومات عامة</h1>
+                    <span>Created at: 06/08/2026, 12:42:20 PM</span>
+                    <div class="report-badges"><div class="report-badge">فترة: 2026-05-31 00:00:00 — 2026-06-06 23:59:59</div></div>
+                </div>
+            </div>
+        </div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">sub - 1234</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">123456789</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">skw 23333</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">869943057881980</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">2 old farmwear</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">869867036853473</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">أيسوزو غماره ب أ هـ 1548</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">359632104996019</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">UHF - 777</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">863540062423331</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">see worldddddd</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">863014539264480</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">solarGuradX f</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">862636051546644</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">ب ط م  - 7538</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">864636066051760</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-06-02 14:45:24</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-05 18:09:33</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">5.63 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">2 يوم 23 ساعة 12 دقيقة 14 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">4 ساعة 11 دقيقة 55 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">3</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">47 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">15 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">0</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">16 دقيقة 11 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">2 دقيقة 31 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">49231 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">ا د و - 5717</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">350317176154957</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">ظفران - أ ر و - 5727</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">350424068273646</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 00:00:01</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-06 23:57:20</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">4094.30 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">2 يوم 14 ساعة 19 دقيقة 37 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">4 يوم 9 ساعة 37 دقيقة 42 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">204</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">103 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">25 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">0</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">3 يوم 23 ساعة 44 دقيقة 19 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">1 يوم 9 ساعة 33 دقيقة 56 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">1199735 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">ر ك س 3586</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">352016709740013</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 00:00:18</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-06 23:59:25</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">1079.12 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">23 ساعة 20 دقيقة 36 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">6 يوم 38 دقيقة 31 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">192</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">191 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">32 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">27</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">1 يوم 12 ساعة 59 دقيقة 11 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">13 ساعة 51 دقيقة 55 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">153593 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">777 - update - 7</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">864636065873503</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">speed limit office2ww</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">864636063216424</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">test  FMC650</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">864636066655727</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">ا س ب - 5026</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">350424060475199</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 21:42:35</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-06 22:30:19</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">0 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">6 يوم 47 دقيقة 44 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">1</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">0 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">0 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">0</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">265920 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">7000 أ س س</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">864636065873511</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">test fmc130</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">864636068553391</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">test vehicle 3</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">864636066063781</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">ا ص ن - 6804</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">353691840839038</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 05:01:41</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-06 18:13:22</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">495.41 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">13 ساعة 51 دقيقة 47 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">5 يوم 23 ساعة 19 دقيقة 54 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">90</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">89 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">27 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">0</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">1 يوم 18 ساعة 9 دقيقة 4 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">1 يوم 4 ساعة 17 دقيقة 17 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">13875 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">aea 321</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">864454070632793</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">دينا بضائع أ س س 7000</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">864636065873446</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 00:02:15</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-06 01:39:45</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">394.25 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">6 ساعة 29 دقيقة 35 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">5 يوم 19 ساعة 7 دقيقة 55 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">22</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">100 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">45 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">0</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">21.04 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">5.34 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">11 ساعة 18 دقيقة 28 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">5 ساعة 6 دقيقة 35 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">95924 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">484 ساعة 19 دقيقة 59 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">864636069245708ddeffefeffefe</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">864636069245708</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">Mutasim Ruptela Eco5</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">868373078650258</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">ا ص ح - 3556(سوبيش) </div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">860640057289870</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 07:20:14</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-06 22:15:02</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">0 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">6 يوم 14 ساعة 54 دقيقة 48 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">1</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">0 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">0 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">0</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">5 دقيقة 42 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">5 دقيقة 42 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">244119 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">س ا ر - 1659</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">353742370411332</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 00:00:32</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-06 23:55:14</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">0.68 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">39 دقيقة 12 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">6 يوم 23 ساعة 15 دقيقة 30 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">3</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">26 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">0 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">0</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">37 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">37 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">4043 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">I  oس ح د - 7789</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">358480089562633</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">TXTdwdws</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">350424069390738</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 17:20:45</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-06 18:24:21</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">1732.21 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">1 يوم 14 ساعة 25 دقيقة 28 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">4 يوم 10 ساعة 38 دقيقة 8 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">166</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">91 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">27 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">0</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">2 يوم 15 ساعة 58 دقيقة 20 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">1 يوم 1 ساعة 59 دقيقة 21 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">642981 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">6096</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">350544501761996</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 03:33:08</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-06 23:29:35</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">662.73 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">23 ساعة 21 دقيقة 21 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">5 يوم 20 ساعة 35 دقيقة 6 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">114</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">93 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">21 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">0</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">1 يوم 6 ساعة 32 دقيقة 10 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">14 ساعة 27 دقيقة 35 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">278239 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">YOOO</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">350317172608196</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 07:23:22</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-06 15:46:11</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">127.68 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">12 ساعة 7 دقيقة 28 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">5 يوم 20 ساعة 15 دقيقة 21 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">315</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">39 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">8 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">0</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">1 يوم 8 ساعة 50 دقيقة 23 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">20 ساعة 42 دقيقة 55 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">58409 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">ruptela test eyesensore</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">868373078666346</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 00:00:18</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-01 08:06:24</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">0.24 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">18 دقيقة 46 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">1 يوم 7 ساعة 47 دقيقة 20 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">20</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">19 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">1 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">0</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">1 يوم 8 ساعة 6 دقيقة 6 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">1 يوم 7 ساعة 47 دقيقة 20 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">128 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">up e9i29ei9</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">861076084170735</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">ر د أ - 1222 - خالد اسماع</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">353742375722832</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 00:13:11</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-06 23:52:45</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">956.15 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">13 ساعة 55 دقيقة 41 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">6 يوم 9 ساعة 43 دقيقة 53 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">90</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">146 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">37 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">25</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">19 ساعة 55 دقيقة 22 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">6 ساعة 10 دقيقة 33 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">24194 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">ا ر ر - 1303</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">350544502119632</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">ا د ه - 2015</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">353691840938780</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">بداية الطريق</span>
+                    <span class="report-kv-value">2026-05-31 05:16:33</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">نهاية الطريق</span>
+                    <span class="report-kv-value">2026-06-06 08:13:15</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">طول الطريق</span>
+                    <span class="report-kv-value">784.36 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التحرك</span>
+                    <span class="report-kv-value">18 ساعة 29 دقيقة 53 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">مدة التوقف</span>
+                    <span class="report-kv-value">5 يوم 8 ساعة 26 دقيقة 49 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عدد التوقف</span>
+                    <span class="report-kv-value">86</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">السرعة القصوى</span>
+                    <span class="report-kv-value">92 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط السرعة</span>
+                    <span class="report-kv-value">21 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عد السرعة الزائدة</span>
+                    <span class="report-kv-value">0</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">استهلاك الوقود</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">متوسط استهلاك الوقود 100كم</span>
+                    <span class="report-kv-value">0 لتر</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">تكلفة الوقود</span>
+                    <span class="report-kv-value">0 SAR</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عمل محرك</span>
+                    <span class="report-kv-value">2 يوم 1 ساعة 30 دقيقة 1 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">محرك راكد</span>
+                    <span class="report-kv-value">1 يوم 7 ساعة 8 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">عداد المسافات</span>
+                    <span class="report-kv-value">42120 كيلومترا</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">ساعات المحرك</span>
+                    <span class="report-kv-value">0 ثانية</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">سائق</span>
+                    <span class="report-kv-value">n/a</span>
+                </div>
+                <div class="report-kv-row">
+                    <span class="report-kv-label">جرار</span>
+                    <span class="report-kv-value">n/a</span>
+                </div></div></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">test</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">864275071006954</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">ا س ح - 7430   canbus</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">860640057213011</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div><div class="report-card">
+        <div class="report-grid-3" style="margin-bottom: 12px;">
+            <div class="report-mini-card">
+                <div class="report-mini-label">الاسم</div>
+                <div class="report-mini-value">147 - a s d</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">رقم الجهاز</div>
+                <div class="report-mini-value">147852369512345</div>
+            </div>
+            <div class="report-mini-card">
+                <div class="report-mini-label">فترة</div>
+                <div class="report-mini-value">2026-05-31 00:00:00 — 2026-06-06 23:59:59</div>
+            </div>
+        </div><p style="text-align:center; color:#6b7280; padding: 20px 0;">لا توجد بيانات</p></div></div>
+    </body>
+</html>
