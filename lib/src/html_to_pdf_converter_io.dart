@@ -82,3 +82,32 @@ class HtmlToPdfConverter {
     return bytes;
   }
 }
+
+@Deprecated('Use HtmlToPdfConverter instead')
+class FlutterNativeHtmlToPdf {
+  final _converter = HtmlToPdfConverter();
+
+  Future<File?> convertHtmlToPdf({
+    required String html,
+    required String targetDirectory,
+    required String targetName,
+    PdfPageSize? pageSize,
+  }) async {
+    return _converter.convertHtmlToPdf(
+      html: html,
+      targetDirectory: targetDirectory,
+      targetName: targetName,
+      pageSize: pageSize,
+    );
+  }
+
+  Future<Uint8List?> convertHtmlToPdfBytes({
+    required String html,
+    PdfPageSize? pageSize,
+  }) async {
+    return _converter.convertHtmlToPdfBytes(
+      html: html,
+      pageSize: pageSize,
+    );
+  }
+}

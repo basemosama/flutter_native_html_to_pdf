@@ -5,11 +5,8 @@
 /// On **iOS**, the HTML is loaded into a [WKWebView] and the PDF data is
 /// produced with `WKWebView.createPDF` (iOS 14+) or `UIPrintPageRenderer`
 /// (iOS 12–13).
-///
-/// Because native WebView engines do the rendering, the output faithfully
-/// reproduces the full range of HTML/CSS/JavaScript supported by the platform,
-/// including custom fonts, flexbox, CSS Grid, images, `@media print` rules,
-/// and more.
+/// On **Web**, the HTML is rendered in a hidden element and converted to PDF
+/// using html2pdf.js.
 ///
 /// ## Usage
 ///
@@ -19,61 +16,21 @@
 /// // Create an instance of the converter
 /// final converter = HtmlToPdfConverter();
 ///
-/// // Convert HTML to a PDF file
+/// // Convert HTML to a PDF file (not supported on web)
 /// final file = await converter.convertHtmlToPdf(
 ///   html: '<h1>Hello World</h1>',
 ///   targetDirectory: '/path/to/directory',
 ///   targetName: 'my_document',
 /// );
 ///
-/// // Or convert HTML to PDF bytes
+/// // Or convert HTML to PDF bytes (works on all platforms)
 /// final bytes = await converter.convertHtmlToPdfBytes(
 ///   html: '<h1>Hello World</h1>',
 /// );
 /// ```
 library;
 
-export 'src/html_to_pdf_converter.dart';
+export 'src/html_to_pdf_converter_stub.dart'
+    if (dart.library.io) 'src/html_to_pdf_converter_io.dart'
+    if (dart.library.js_interop) 'src/html_to_pdf_converter_web.dart';
 export 'src/pdf_page_size.dart';
-
-// For backward compatibility, also export the main class with the old name
-import 'dart:io';
-import 'dart:typed_data';
-
-import 'src/html_to_pdf_converter.dart';
-import 'src/pdf_page_size.dart';
-
-/// Legacy class for backward compatibility.
-///
-/// Consider using [HtmlToPdfConverter] directly for new code.
-@Deprecated('Use HtmlToPdfConverter instead')
-class FlutterNativeHtmlToPdf {
-  final _converter = HtmlToPdfConverter();
-
-  /// Converts HTML content to a PDF file.
-  Future<File?> convertHtmlToPdf({
-    required String html,
-    required String targetDirectory,
-    required String targetName,
-    PdfPageSize? pageSize,
-  }) async {
-    return _converter.convertHtmlToPdf(
-      html: html,
-      targetDirectory: targetDirectory,
-      targetName: targetName,
-      pageSize: pageSize,
-    );
-  }
-
-  /// Converts HTML content to PDF bytes.
-  Future<Uint8List?> convertHtmlToPdfBytes({
-    required String html,
-    PdfPageSize? pageSize,
-  }) async {
-    return _converter.convertHtmlToPdfBytes(
-      html: html,
-      pageSize: pageSize,
-    );
-  }
-}
-
