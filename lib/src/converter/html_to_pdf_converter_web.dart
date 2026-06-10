@@ -30,12 +30,16 @@ class HtmlToPdfConverter {
     final preparedHtml = options?.wrapOptions != null
         ? HtmlPdfHelper.wrapHtml(html, options: options!.wrapOptions!)
         : html;
+    final selectors = options?.wrapOptions?.avoidBreakInsideSelectors ?? [];
+    final breakPadding = options?.wrapOptions?.pageBreakPadding ?? 12.0;
     final Uint8List? bytes = await _channel.invokeMethod<Uint8List>(
       'convertHtmlToPdfBytes',
       {
         'html': preparedHtml,
         if (pageSize != null) 'pageWidth': pageSize.width,
         if (pageSize != null) 'pageHeight': pageSize.height,
+        if (selectors.isNotEmpty) 'avoidBreakSelectors': selectors,
+        'pageBreakPadding': breakPadding,
       },
     );
 

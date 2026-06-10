@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 import '../models/pdf_options.dart';
+import '../models/pdf_page_size.dart';
 import '../utils/html_pdf_helper.dart';
 
 /// Converts HTML content to PDF using the native platform's WebView engine.
@@ -34,9 +35,18 @@ class HtmlToPdfConverter {
     PdfOptions? options,
   }) async {
     final pageSize = options?.pageSize;
-    final preparedHtml = options?.wrapOptions != null
+    var preparedHtml = options?.wrapOptions != null
         ? HtmlPdfHelper.wrapHtml(html, options: options!.wrapOptions!)
         : html;
+    final wrapOpts = options?.wrapOptions;
+    if (wrapOpts != null && wrapOpts.avoidBreakInsideSelectors.isNotEmpty) {
+      preparedHtml = HtmlPdfHelper.injectPageBreakScript(
+        preparedHtml,
+        pageHeightPt: (options?.pageSize ?? PdfPageSize.a4).height,
+        selectors: wrapOpts.avoidBreakInsideSelectors,
+        padding: wrapOpts.pageBreakPadding,
+      );
+    }
     final String? filePath = await _channel.invokeMethod<String>(
       'convertHtmlToPdf',
       {
@@ -69,9 +79,18 @@ class HtmlToPdfConverter {
     PdfOptions? options,
   }) async {
     final pageSize = options?.pageSize;
-    final preparedHtml = options?.wrapOptions != null
+    var preparedHtml = options?.wrapOptions != null
         ? HtmlPdfHelper.wrapHtml(html, options: options!.wrapOptions!)
         : html;
+    final wrapOpts = options?.wrapOptions;
+    if (wrapOpts != null && wrapOpts.avoidBreakInsideSelectors.isNotEmpty) {
+      preparedHtml = HtmlPdfHelper.injectPageBreakScript(
+        preparedHtml,
+        pageHeightPt: (options?.pageSize ?? PdfPageSize.a4).height,
+        selectors: wrapOpts.avoidBreakInsideSelectors,
+        padding: wrapOpts.pageBreakPadding,
+      );
+    }
     final Uint8List? bytes = await _channel.invokeMethod<Uint8List>(
       'convertHtmlToPdfBytes',
       {

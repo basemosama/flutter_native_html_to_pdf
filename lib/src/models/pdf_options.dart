@@ -31,11 +31,29 @@ class HtmlWrapOptions {
   /// The corresponding `<link>` tags are injected into `<head>`.
   final List<String> googleFonts;
 
+  /// CSS selectors for elements that should not be split across pages.
+  ///
+  /// On Android/iOS, injects `break-inside: avoid` CSS for these selectors
+  /// (the native print engine respects it). On web, the plugin pre-processes
+  /// the DOM to insert spacers before html2canvas captures.
+  ///
+  /// Example: `['.report-card', '.report-kv-row', 'tr']`
+  final List<String> avoidBreakInsideSelectors;
+
+  /// Extra padding (in CSS pixels) added at the top of the next page when
+  /// an element is pushed down to avoid a page break.
+  ///
+  /// Gives visual breathing room so content doesn't start flush against
+  /// the page edge. Defaults to `12.0`.
+  final double pageBreakPadding;
+
   const HtmlWrapOptions({
     this.direction = PdfTextDirection.ltr,
     this.language = 'en',
     this.fontFamily,
     this.googleFonts = const [],
+    this.avoidBreakInsideSelectors = const [],
+    this.pageBreakPadding = 12.0,
   });
 }
 

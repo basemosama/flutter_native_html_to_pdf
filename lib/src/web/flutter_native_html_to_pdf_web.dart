@@ -11,6 +11,8 @@ external JSPromise<JSAny?> _callHelper(
   JSString html,
   JSNumber width,
   JSNumber height,
+  JSArray<JSString> avoidBreakSelectors,
+  JSNumber pageBreakPadding,
 );
 
 class FlutterNativeHtmlToPdfWeb {
@@ -31,7 +33,12 @@ class FlutterNativeHtmlToPdfWeb {
         final html = args['html'] as String;
         final pageWidth = args['pageWidth'] as double?;
         final pageHeight = args['pageHeight'] as double?;
-        return _convertHtmlToPdfBytes(html, pageWidth, pageHeight);
+        final selectors = (args['avoidBreakSelectors'] as List?)
+                ?.cast<String>() ??
+            [];
+        final breakPadding = (args['pageBreakPadding'] as num?)?.toDouble() ?? 12.0;
+        return _convertHtmlToPdfBytes(
+            html, pageWidth, pageHeight, selectors, breakPadding);
       case 'convertHtmlToPdf':
         throw PlatformException(
           code: 'UNSUPPORTED',
@@ -50,13 +57,17 @@ class FlutterNativeHtmlToPdfWeb {
     String html,
     double? pageWidth,
     double? pageHeight,
+    List<String> avoidBreakSelectors,
+    double breakPadding,
   ) async {
     final width = pageWidth ?? 595.2;
     final height = pageHeight ?? 841.8;
 
     await _ensureHelperLoaded();
 
-    final promise = _callHelper(html.toJS, width.toJS, height.toJS);
+    final jsSelectors = avoidBreakSelectors.map((s) => s.toJS).toList().toJS;
+    final promise = _callHelper(
+        html.toJS, width.toJS, height.toJS, jsSelectors, breakPadding.toJS);
     final result = await promise.toDart;
     if (result == null) {
       throw PlatformException(
@@ -79,7 +90,7 @@ class FlutterNativeHtmlToPdfWeb {
     final script =
         web.document.createElement('script') as web.HTMLScriptElement;
     script.textContent = r'''
-window.__flutterHtmlToPdf = function(htmlString, pageWidth, pageHeight) {
+window.__flutterHtmlToPdf = function(htmlString, pageWidth, pageHeight, avoidBreakSelectors, pageBreakPadding) {
   var cssWidth = pageWidth * 96.0 / 72.0;
 
   var parser = new DOMParser();
@@ -162,12 +173,51 @@ window.__flutterHtmlToPdf = function(htmlString, pageWidth, pageHeight) {
     return Promise.all(promises);
   }
 
-  // Wait for web fonts, then rasterize SVGs, then capture.
+  // Simulate page-break-inside:avoid for web. Native print engines
+  // (Android/iOS) handle this via CSS, but html2canvas ignores it.
+  // Walk elements matching the selectors and insert spacers to push
+  // elements that cross page boundaries to the next page.
+  function avoidPageBreaks() {
+    if (!avoidBreakSelectors || avoidBreakSelectors.length === 0) return;
+
+    var cssPageH = pageHeight * 96.0 / 72.0;
+    var selector = avoidBreakSelectors.join(', ');
+
+    // Multiple passes: pushing element A down can cause element B
+    // to cross a different page boundary. Repeat until stable.
+    for (var pass = 0; pass < 10; pass++) {
+      var changed = false;
+      var elements = container.querySelectorAll(selector);
+      var containerTop = container.getBoundingClientRect().top;
+
+      for (var i = 0; i < elements.length; i++) {
+        var el = elements[i];
+        var rect = el.getBoundingClientRect();
+        var top = rect.top - containerTop;
+        var bottom = top + rect.height;
+
+        var startPage = Math.floor(top / cssPageH);
+        var endPage = Math.floor((bottom - 1) / cssPageH);
+
+        if (startPage !== endPage && rect.height < cssPageH * 0.85) {
+          var pushDown = (startPage + 1) * cssPageH - top + (pageBreakPadding || 0);
+          el.style.marginTop = (parseFloat(el.style.marginTop || 0) + pushDown) + 'px';
+          container.offsetHeight; // force reflow
+          changed = true;
+        }
+      }
+
+      if (!changed) break;
+    }
+  }
+
+  // Wait for web fonts, then rasterize SVGs, then avoid page breaks, then capture.
   return document.fonts.ready.then(function() {
     return rasterizeSvgImages();
   }).then(function() {
     return new Promise(function(resolve) { setTimeout(resolve, 200); });
   }).then(function() {
+    avoidPageBreaks();
     return html2canvas(container, {
       scale: 2,
       useCORS: true,
@@ -180,9 +230,6 @@ window.__flutterHtmlToPdf = function(htmlString, pageWidth, pageHeight) {
       orientation: pageWidth > pageHeight ? 'landscape' : 'portrait'
     });
 
-    // Slice the canvas into per-page chunks. Each page gets only its
-    // own image data instead of the entire full-height canvas, which
-    // cuts file size from ~190MB to a few MB.
     var canvasPageHeight = Math.floor(canvas.width * pageHeight / pageWidth);
     var totalPages = Math.ceil(canvas.height / canvasPageHeight);
 

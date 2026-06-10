@@ -37,10 +37,12 @@ class HtmlPdfHelper {
         lang: lang,
         fontFamily: fontFamily,
         googleFonts: googleFonts,
+        avoidBreakInsideSelectors: options.avoidBreakInsideSelectors,
       );
     }
 
     final fontLinks = _buildGoogleFontLinks(googleFonts);
+    final breakCss = _buildBreakInsideCss(options.avoidBreakInsideSelectors);
 
     return '''
 <!DOCTYPE html>
@@ -70,13 +72,84 @@ $fontLinks  <style>
     thead { display: table-header-group; }
     tfoot { display: table-footer-group; }
     img, svg { max-width: 100%; height: auto; }
-  </style>
+$breakCss  </style>
 </head>
 <body>
 $html
 </body>
 </html>
 ''';
+  }
+
+  static String _buildBreakInsideCss(List<String> selectors) {
+    if (selectors.isEmpty) return '';
+    final joined = selectors.join(',\n    ');
+    return '    $joined {\n      page-break-inside: avoid;\n      break-inside: avoid;\n    }\n';
+  }
+
+  /// Injects a `<script>` before `</body>` that walks the DOM on load,
+  /// finds elements matching [selectors] that would be split across page
+  /// boundaries, and pushes them to the next page with margin-top.
+  ///
+  /// This runs inside the WebView on Android/iOS (where scripts execute),
+  /// providing the same smart page-break avoidance as the web platform.
+  static String injectPageBreakScript(
+    String html, {
+    required double pageHeightPt,
+    required List<String> selectors,
+    double padding = 12.0,
+  }) {
+    if (selectors.isEmpty) return html;
+
+    final cssPageH = pageHeightPt * 96.0 / 72.0;
+    final selectorList =
+        selectors.map((s) => "'${s.replaceAll("'", "\\'")}'").join(', ');
+
+    final script = '''
+<script>
+(function() {
+  var cssPageH = $cssPageH;
+  var selectors = [$selectorList];
+  var padding = $padding;
+
+  function avoidPageBreaks() {
+    var selector = selectors.join(', ');
+    for (var pass = 0; pass < 10; pass++) {
+      var changed = false;
+      var elements = document.querySelectorAll(selector);
+      for (var i = 0; i < elements.length; i++) {
+        var el = elements[i];
+        var rect = el.getBoundingClientRect();
+        var top = rect.top + window.scrollY;
+        var bottom = top + rect.height;
+        var startPage = Math.floor(top / cssPageH);
+        var endPage = Math.floor((bottom - 1) / cssPageH);
+        if (startPage !== endPage && rect.height < cssPageH * 0.85) {
+          var pushDown = (startPage + 1) * cssPageH - top + padding;
+          el.style.marginTop = (parseFloat(el.style.marginTop || 0) + pushDown) + 'px';
+          document.body.offsetHeight;
+          changed = true;
+        }
+      }
+      if (!changed) break;
+    }
+  }
+
+  if (document.readyState === 'complete') {
+    avoidPageBreaks();
+  } else {
+    window.addEventListener('load', avoidPageBreaks);
+  }
+})();
+</script>
+''';
+
+    final bodyClose =
+        RegExp('</body>', caseSensitive: false).firstMatch(html);
+    if (bodyClose != null) {
+      return html.replaceRange(bodyClose.start, bodyClose.start, script);
+    }
+    return '$html$script';
   }
 
   static String _buildGoogleFontLinks(List<String> googleFonts) {
@@ -101,6 +174,7 @@ $html
     required String lang,
     required String fontFamily,
     required List<String> googleFonts,
+    List<String> avoidBreakInsideSelectors = const [],
   }) {
     var content = html.replaceFirstMapped(
       RegExp(r'<html\b([^>]*)>', caseSensitive: false),
@@ -127,6 +201,7 @@ $html
       }
     }
 
+    final breakCss = _buildBreakInsideCss(avoidBreakInsideSelectors);
     final pdfStyle = '''
 <style>
   @page { size: A4; margin: 12mm; }
@@ -139,7 +214,7 @@ $html
   thead { display: table-header-group; }
   tfoot { display: table-footer-group; }
   tr { page-break-inside: avoid; }
-</style>
+$breakCss</style>
 ''';
     content = _insertIntoHead(content, pdfStyle);
     return content;
