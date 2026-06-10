@@ -47,6 +47,12 @@ class HtmlWrapOptions {
   /// the page edge. Defaults to `12.0`.
   final double pageBreakPadding;
 
+  /// CSS background color for `html` and `body`.
+  ///
+  /// When omitted, defaults to `'white'`. Set to any valid CSS color
+  /// value (e.g. `'#f4f7fb'`, `'transparent'`, `'rgb(244,247,251)'`).
+  final String? backgroundColor;
+
   const HtmlWrapOptions({
     this.direction = PdfTextDirection.ltr,
     this.language = 'en',
@@ -54,6 +60,7 @@ class HtmlWrapOptions {
     this.googleFonts = const [],
     this.avoidBreakInsideSelectors = const [],
     this.pageBreakPadding = 12.0,
+    this.backgroundColor,
   });
 }
 

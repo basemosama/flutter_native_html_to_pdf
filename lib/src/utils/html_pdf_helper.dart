@@ -29,6 +29,7 @@ class HtmlPdfHelper {
     final lang = options.language;
     final fontFamily = options.fontFamily ?? 'system-ui, sans-serif';
     final googleFonts = options.googleFonts;
+    final bg = options.backgroundColor ?? 'white';
 
     if (RegExp(r'<html\b[^>]*>', caseSensitive: false).hasMatch(html)) {
       return _injectMetadata(
@@ -38,6 +39,7 @@ class HtmlPdfHelper {
         fontFamily: fontFamily,
         googleFonts: googleFonts,
         avoidBreakInsideSelectors: options.avoidBreakInsideSelectors,
+        backgroundColor: bg,
       );
     }
 
@@ -55,7 +57,7 @@ $fontLinks  <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: white;
+      background: $bg;
       font-family: $fontFamily;
       direction: $dir;
     }
@@ -175,6 +177,7 @@ $html
     required String fontFamily,
     required List<String> googleFonts,
     List<String> avoidBreakInsideSelectors = const [],
+    String backgroundColor = 'white',
   }) {
     var content = html.replaceFirstMapped(
       RegExp(r'<html\b([^>]*)>', caseSensitive: false),
@@ -208,7 +211,7 @@ $html
   html, body {
     font-family: $fontFamily;
     direction: $dir;
-    background: white;
+    background: $backgroundColor;
   }
   table { page-break-inside: avoid; width: 100%; }
   thead { display: table-header-group; }
