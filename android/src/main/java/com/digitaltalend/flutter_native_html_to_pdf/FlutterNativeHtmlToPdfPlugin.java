@@ -220,7 +220,7 @@ public class FlutterNativeHtmlToPdfPlugin implements FlutterPlugin, MethodChanne
                 }
             });
 
-            webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
+            webView.loadDataWithBaseURL(null, injectPrintColorAdjust(html), "text/html", "UTF-8", null);
         });
     }
 
@@ -345,13 +345,32 @@ public class FlutterNativeHtmlToPdfPlugin implements FlutterPlugin, MethodChanne
                 }
             });
 
-            webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
+            webView.loadDataWithBaseURL(null, injectPrintColorAdjust(html), "text/html", "UTF-8", null);
         });
     }
 
     // ------------------------------------------------------------------
     // Utility
     // ------------------------------------------------------------------
+
+    /**
+     * Injects CSS to force WebKit to render background colors/images in print
+     * mode. Without this, Chrome suppresses backgrounds when generating PDFs.
+     */
+    private static String injectPrintColorAdjust(String html) {
+        String style = "<style>* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }</style>";
+        String lower = html.toLowerCase();
+        int headEnd = lower.indexOf("</head>");
+        if (headEnd >= 0) {
+            return html.substring(0, headEnd) + style + html.substring(headEnd);
+        }
+        int headStart = lower.indexOf("<head>");
+        if (headStart >= 0) {
+            int insertPos = headStart + 6;
+            return html.substring(0, insertPos) + style + html.substring(insertPos);
+        }
+        return style + html;
+    }
 
     private static void closeSilently(ParcelFileDescriptor pfd) {
         try {

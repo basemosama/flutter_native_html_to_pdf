@@ -1,248 +1,293 @@
 # Flutter Native HTML to PDF
 
-A Flutter plugin that uses native WebView (Android WebView / iOS WKWebView) to render HTML and convert it to high-quality PDF files. Leverages native platform capabilities for accurate HTML rendering with full CSS support.
+A Flutter plugin that converts HTML to high-quality PDF files using native platform rendering. Uses Android WebView, iOS WKWebView, and html2canvas + jsPDF on web.
 
 ## Features
 
-- **Native WebView Rendering**: Uses Android WebView and iOS WKWebView for accurate HTML-to-PDF conversion
-- **Full CSS Support**: Complete support for modern CSS properties, layouts, fonts, and styling
-- **HTML to PDF File Conversion**: Convert HTML content into a PDF file and save it to a specified directory
-- **HTML to PDF Bytes Conversion**: Convert HTML content directly to `Uint8List` PDF data without saving to a file
-- **Customizable Page Sizes**: Support for A4, Letter, Legal, A3, A5, B5, Executive, Tabloid, and custom page sizes
-- **High-Quality Output**: Native rendering ensures professional-quality PDFs with accurate layout
+- **Cross-platform**: Android, iOS, and Web
+- **Native rendering**: Uses platform WebView engines for pixel-perfect output on mobile
+- **Two conversion modes**: Save to file (`convertHtmlToPdf`) or get bytes (`convertHtmlToPdfBytes`)
+- **Customizable page sizes**: A4, Letter, Legal, A3, A5, B5, Executive, Tabloid, or custom dimensions
+- **HTML wrapping utilities**: Optional helpers for fonts, RTL/LTR direction, page break control, and background color
+- **Smart page breaks**: Prevent elements from being split across pages on all platforms
 
 ## Installation
 
-Add this to your package's `pubspec.yaml` file:
-
-dependencies:
 ```yaml
+dependencies:
   flutter_native_html_to_pdf: ^3.1.0
 ```
 
-## Usage
+## Platform Support
 
-### Convert HTML to PDF File
+| Platform | Rendering Engine | `convertHtmlToPdf` | `convertHtmlToPdfBytes` |
+|----------|-----------------|-------------------|----------------------|
+| Android  | Android WebView | Yes | Yes |
+| iOS      | WKWebView       | Yes | Yes |
+| Web      | html2canvas + jsPDF | No (throws `UnsupportedError`) | Yes |
+
+## Quick Start
+
+### Convert HTML to PDF Bytes (all platforms)
 
 ```dart
 import 'package:flutter_native_html_to_pdf/flutter_native_html_to_pdf.dart';
-import 'package:path_provider/path_provider.dart';
 
 final converter = HtmlToPdfConverter();
 
-const htmlContent = """
-<!DOCTYPE html>
-<html>
-<head><title>Sample PDF</title></head>
-<body>
-    <h1>Hello World!</h1>
-    <p>This is a sample PDF.</p>
-</body>
-</html>
-""";
-
-Directory appDocDir = await getApplicationDocumentsDirectory();
-final pdfFile = await converter.convertHtmlToPdf(
-  html: htmlContent,
-  targetDirectory: appDocDir.path,
-  targetName: "my_document",
+final bytes = await converter.convertHtmlToPdfBytes(
+  html: '<h1>Hello World</h1><p>This is a PDF.</p>',
 );
 
-print('PDF saved at: ${pdfFile.path}');
+// Use bytes to save, upload, share, etc.
 ```
 
-### Convert HTML to PDF Bytes
-
-For better performance when you don't need to save the PDF as a file:
+### Convert HTML to PDF File (Android & iOS only)
 
 ```dart
-import 'package:flutter_native_html_to_pdf/flutter_native_html_to_pdf.dart';
+import 'package:path_provider/path_provider.dart';
 
-final converter = HtmlToPdfConverter();
-
-const htmlContent = """
-<!DOCTYPE html>
-<html>
-<head><title>Sample PDF</title></head>
-<body>
-    <h1>Hello World!</h1>
-    <p>This PDF is generated as bytes.</p>
-</body>
-</html>
-""";
-
-final pdfBytes = await converter.convertHtmlToPdfBytes(
-  html: htmlContent,
+final dir = await getApplicationDocumentsDirectory();
+final file = await converter.convertHtmlToPdf(
+  html: '<h1>Hello World</h1>',
+  targetDirectory: dir.path,
+  targetName: 'my_document',
 );
 
-print('PDF size: ${pdfBytes.length} bytes');
+print('PDF saved at: ${file.path}');
+```
 
-// Use the bytes directly (e.g., upload to server, share, etc.)
-// Or save to file if needed:
-// await File('path/to/file.pdf').writeAsBytes(pdfBytes);
+## PdfOptions
+
+Pass `PdfOptions` to control page size and enable HTML wrapping:
+
+```dart
+final bytes = await converter.convertHtmlToPdfBytes(
+  html: htmlContent,
+  options: PdfOptions(
+    pageSize: PdfPageSize.a4,
+  ),
+);
 ```
 
 ### Custom Page Sizes
 
-You can specify different page sizes for your PDFs. The package supports common page sizes and custom dimensions:
+```dart
+// Predefined sizes
+PdfPageSize.a4        // 210mm x 297mm (default)
+PdfPageSize.letter    // 8.5" x 11"
+PdfPageSize.legal     // 8.5" x 14"
+PdfPageSize.a3        // 297mm x 420mm
+PdfPageSize.a5        // 148mm x 210mm
+PdfPageSize.b5        // 176mm x 250mm
+PdfPageSize.executive // 7.25" x 10.5"
+PdfPageSize.tabloid   // 11" x 17"
+
+// Custom size in points (72 points = 1 inch)
+PdfPageSize.custom(width: 500, height: 700, name: 'My Size');
+
+// From millimeters
+PdfPageSize.fromMillimeters(widthMm: 210, heightMm: 297);
+
+// From inches
+PdfPageSize.fromInches(widthInches: 8.5, heightInches: 11);
+
+// Orientation
+PdfPageSize.a4.landscape;
+PdfPageSize.a4.portrait;
+```
+
+## HtmlWrapOptions
+
+Optional HTML wrapping that adds print-friendly CSS, font loading, and direction support. Set `PdfOptions.wrapOptions` to enable:
+
+```dart
+final bytes = await converter.convertHtmlToPdfBytes(
+  html: '<div class="card">Report content...</div>',
+  options: PdfOptions(
+    pageSize: PdfPageSize.a4,
+    wrapOptions: HtmlWrapOptions(
+      direction: PdfTextDirection.rtl,
+      language: 'ar',
+      fontFamily: "'Cairo', sans-serif",
+      googleFonts: ['Cairo:wght@400;700'],
+      backgroundColor: '#f4f7fb',
+      avoidBreakInsideSelectors: ['.card', 'tr'],
+      pageBreakPadding: 16.0,
+    ),
+  ),
+);
+```
+
+### All Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `direction` | `PdfTextDirection` | `ltr` | Text direction (`ltr` or `rtl`) |
+| `language` | `String` | `'en'` | Language code (`'en'`, `'ar'`, `'fr'`, etc.) |
+| `fontFamily` | `String?` | `system-ui, sans-serif` | CSS font-family value |
+| `googleFonts` | `List<String>` | `[]` | Google Font specs to load (e.g. `['Cairo:wght@400;700']`) |
+| `backgroundColor` | `String?` | `'white'` | CSS background color for html/body |
+| `avoidBreakInsideSelectors` | `List<String>` | `[]` | CSS selectors for elements that should not split across pages |
+| `pageBreakPadding` | `double` | `12.0` | Extra top padding (px) when an element is pushed to the next page |
+
+### How Wrapping Works
+
+When `wrapOptions` is set:
+
+1. If the HTML is a fragment (no `<html>` tag), it's wrapped in a full HTML document with `<head>`, `<body>`, and print-friendly CSS
+2. If the HTML already has an `<html>` tag, the metadata (direction, fonts, styles) is injected into the existing structure
+3. Google Fonts `<link>` tags are added to `<head>`
+4. CSS `break-inside: avoid` is injected for `avoidBreakInsideSelectors`
+5. A page-break avoidance script is injected that runs in the WebView (Android/iOS) or before html2canvas (web), pushing elements that would be split to the next page
+
+### Manual Wrapping
+
+You can also call `HtmlPdfHelper.wrapHtml` directly without using `PdfOptions.wrapOptions`:
+
+```dart
+final wrappedHtml = HtmlPdfHelper.wrapHtml(
+  rawContent,
+  options: HtmlWrapOptions(
+    direction: PdfTextDirection.rtl,
+    language: 'ar',
+    googleFonts: ['Cairo:wght@400;700'],
+  ),
+);
+
+final bytes = await converter.convertHtmlToPdfBytes(html: wrappedHtml);
+```
+
+## Page Break Control
+
+### Automatic (via selectors)
+
+Specify CSS selectors for elements that should not be split across pages:
+
+```dart
+PdfOptions(
+  wrapOptions: HtmlWrapOptions(
+    avoidBreakInsideSelectors: [
+      '.report-card',    // don't split cards
+      '.data-row',       // don't split rows
+      'tr',              // don't split table rows
+    ],
+    pageBreakPadding: 12.0, // breathing room at top of new page
+  ),
+)
+```
+
+**How it works per platform:**
+- **Android/iOS**: Injects CSS `break-inside: avoid` (native print engines respect it) and a JavaScript that adjusts element positions at page boundaries
+- **Web**: Pre-processes the DOM before html2canvas captures, inserting margin to push boundary-crossing elements to the next page
+
+### Manual (via CSS classes in your HTML)
+
+Add standard CSS page-break classes in your HTML:
+
+```html
+<div class="section" style="page-break-inside: avoid;">
+  <!-- This section won't be split -->
+</div>
+
+<div style="page-break-before: always;">
+  <!-- This starts on a new page -->
+</div>
+```
+
+On Android/iOS, the native print engines respect these CSS rules directly. On web, use `avoidBreakInsideSelectors` for the same effect.
+
+## Web Platform Notes
+
+On web, `convertHtmlToPdfBytes` uses [html2canvas](https://html2canvas.hertzen.com/) and [jsPDF](https://github.com/parallax/jsPDF) (loaded from CDN automatically). Key differences from native:
+
+- `convertHtmlToPdf` (file-based) is **not supported** — throws `UnsupportedError`. Use `convertHtmlToPdfBytes` instead
+- Output is rasterized (image-based PDF), not vector. Text is not selectable in the PDF
+- Some complex CSS (box-shadow, certain gradients) may render slightly differently than the browser
+- SVG data-URI images are automatically pre-rasterized to PNG for compatibility
+- `letter-spacing` CSS is reset to prevent Arabic ligature issues with html2canvas
+
+### Downloading the PDF on Web
+
+```dart
+import 'package:flutter/foundation.dart';
+
+final bytes = await converter.convertHtmlToPdfBytes(html: html);
+
+if (kIsWeb) {
+  // Trigger browser download — use the download_helper from the example app
+  downloadPdfBytes(bytes, 'report.pdf');
+} else {
+  // Save to file on mobile
+  final file = File('/path/to/report.pdf');
+  await file.writeAsBytes(bytes);
+}
+```
+
+## Full Example
 
 ```dart
 import 'package:flutter_native_html_to_pdf/flutter_native_html_to_pdf.dart';
 
 final converter = HtmlToPdfConverter();
 
-// Use a predefined page size
-final pdfFile = await converter.convertHtmlToPdf(
-  html: htmlContent,
-  targetDirectory: appDocDir.path,
-  targetName: "my_document",
-  pageSize: PdfPageSize.letter, // US Letter size
-);
-
-// Or create a custom page size (dimensions in points, 72 points = 1 inch)
-final customPageSize = PdfPageSize.custom(
-  width: 500,
-  height: 700,
-  name: 'My Custom Size',
-);
-
-// Create from millimeters
-final mmPageSize = PdfPageSize.fromMillimeters(
-  widthMm: 210,
-  heightMm: 297,
-  name: 'A4 from mm',
-);
-
-// Create from inches
-final inchPageSize = PdfPageSize.fromInches(
-  widthInches: 8.5,
-  heightInches: 11,
-  name: 'Letter from inches',
-);
-
-// Get landscape/portrait orientation
-final landscapeA4 = PdfPageSize.a4.landscape;
-final portraitA4 = PdfPageSize.a4.portrait;
-```
-
-**Available predefined page sizes:**
-- `PdfPageSize.a4` - A4 (210mm x 297mm) - Default
-- `PdfPageSize.letter` - US Letter (8.5" x 11")
-- `PdfPageSize.legal` - US Legal (8.5" x 14")
-- `PdfPageSize.a3` - A3 (297mm x 420mm)
-- `PdfPageSize.a5` - A5 (148mm x 210mm)
-- `PdfPageSize.b5` - B5 (176mm x 250mm)
-- `PdfPageSize.executive` - Executive (7.25" x 10.5")
-- `PdfPageSize.tabloid` - US Tabloid (11" x 17")
-
-**Note:** If no page size is specified, the default is A4.
-
-## Migration from v1.x and v2.x
-
-If you're upgrading from version 1.x or 2.x, the API remains the same:
-
-```dart
-// Old (v1.x)
-final plugin = FlutterNativeHtmlToPdf();
-final pdfFile = await plugin.convertHtmlToPdf(...);
-
-// New (v2.x and v3.x)
-final converter = HtmlToPdfConverter();
-final pdfFile = await converter.convertHtmlToPdf(...);
-```
-
-**Note:** Version 3.0.0 uses native platform code (WebView) for better rendering quality compared to the pure Dart implementation in v2.x.
-
-## Benefits of Native WebView Implementation
-
-- **Accurate Rendering**: Native WebView provides the same rendering quality as a web browser
-- **Full CSS Support**: Complete support for modern CSS3 properties, flexbox, grid, and custom fonts
-- **Better Performance**: Optimized native rendering engine
-- **Professional Output**: High-quality PDFs suitable for production use
-- **Web Standards**: Full compatibility with HTML5 and CSS3 standards
-
-## Platform Support
-
-- ✅ Android (uses Android WebView)
-- ✅ iOS (uses WKWebView)
-
-**Note:** This version requires native platform support and currently works on Android and iOS.
-
-## Note
-
-The HTML content can be static or dynamic. You can use any valid HTML, including CSS styles and images.
-
-### CSS Styles and Fonts
-
-This plugin fully supports CSS styling through native WebView rendering on both Android and iOS:
-- **Colors**: Background colors, text colors, border colors, gradients
-- **Fonts**: Font families, sizes, weights, styles (bold, italic, etc.), custom web fonts
-- **Layout**: Margins, padding, borders, flexbox, grid, positioning
-- **Modern CSS**: CSS3 properties, animations (static in PDF), transforms, shadows
-- **All standard CSS properties**: Native WebView ensures complete CSS compatibility
-
-**Example HTML with CSS:**
-
-```dart
-const htmlContent = """
+const html = '''
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Styled PDF</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            color: #ff0000;
-            font-weight: bold;
-        }
-        p {
-            color: #008000;
-            font-size: 16px;
-        }
-        .highlight {
-            background-color: #ffff00;
-            padding: 10px;
-        }
-    </style>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { color: #1d4ed8; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; }
+    th { background: #eff6ff; text-align: left; }
+  </style>
 </head>
 <body>
-    <h1>Red Heading</h1>
-    <p>Green paragraph text.</p>
-    <div class="highlight">
-        <p>Yellow highlighted section.</p>
-    </div>
+  <h1>Monthly Report</h1>
+  <div class="card">
+    <h2>Summary</h2>
+    <table>
+      <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Revenue</td><td>\$12,500</td></tr>
+        <tr><td>Users</td><td>1,234</td></tr>
+      </tbody>
+    </table>
+  </div>
 </body>
 </html>
-""";
+''';
+
+final bytes = await converter.convertHtmlToPdfBytes(
+  html: html,
+  options: PdfOptions(
+    pageSize: PdfPageSize.a4,
+    wrapOptions: HtmlWrapOptions(
+      avoidBreakInsideSelectors: ['.card', 'tr'],
+    ),
+  ),
+);
 ```
 
-### Using Images in HTML
+## Android Configuration
 
-This plugin supports loading images in your HTML content, including:
-- **External images** via HTTP/HTTPS URLs (e.g., `https://example.com/image.jpg`)
-- **Base64 encoded images** (e.g., `data:image/png;base64,...`)
-- **Local file images** (with proper file:// URLs)
-
-**Important Configuration for External Images:**
-
-#### Android
-Add the INTERNET permission to your `android/app/src/main/AndroidManifest.xml`:
+Add internet permission for external images/fonts in `android/app/src/main/AndroidManifest.xml`:
 
 ```xml
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.INTERNET" />
-    
-    <application>
-        ...
-    </application>
-</manifest>
+<uses-permission android:name="android.permission.INTERNET" />
 ```
 
-#### iOS
-Add App Transport Security settings to your `ios/Runner/Info.plist`:
+## iOS Configuration
+
+For external resources, add to `ios/Runner/Info.plist`:
 
 ```xml
 <key>NSAppTransportSecurity</key>
@@ -252,26 +297,22 @@ Add App Transport Security settings to your `ios/Runner/Info.plist`:
 </dict>
 ```
 
-**Example HTML with images:**
+## Migration from v2.x
+
+The `pageSize` parameter has been replaced by `PdfOptions`:
 
 ```dart
-const htmlContent = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>PDF with Images</title>
-</head>
-<body>
-    <h1>My Document</h1>
-    <img src="https://picsum.photos/200/300" alt="Sample image">
-    <p>Image from URL</p>
-</body>
-</html>
-""";
+// v2.x
+await converter.convertHtmlToPdfBytes(
+  html: html,
+  pageSize: PdfPageSize.letter,
+);
+
+// v3.x
+await converter.convertHtmlToPdfBytes(
+  html: html,
+  options: PdfOptions(pageSize: PdfPageSize.letter),
+);
 ```
 
-**Note:** The native WebView automatically waits for images to load before generating the PDF. For optimal results with external images:
-- Ensure you have a stable internet connection
-- The plugin uses native WebView callbacks to detect when all images have finished loading
-- WebView rendering ensures accurate image placement and sizing
-- For faster generation, consider using base64 encoded images or local assets
+The deprecated `FlutterNativeHtmlToPdf` class still works but use `HtmlToPdfConverter` for new code.

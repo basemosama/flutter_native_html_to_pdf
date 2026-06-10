@@ -33,11 +33,13 @@ public class FlutterNativeHtmlToPdfPlugin: NSObject, FlutterPlugin {
             }
             let pageWidth  = args["pageWidth"]  as? Double
             let pageHeight = args["pageHeight"] as? Double
+            let backgroundColor = args["backgroundColor"] as? String
 
             HtmlToPdfConverter.convert(
                 html: html,
                 pageWidth: pageWidth,
-                pageHeight: pageHeight
+                pageHeight: pageHeight,
+                backgroundColor: backgroundColor
             ) { data in
                 guard let data = data else {
                     result(FlutterError(code: "PDF_ERROR", message: "Failed to generate PDF data", details: nil))
@@ -71,11 +73,13 @@ public class FlutterNativeHtmlToPdfPlugin: NSObject, FlutterPlugin {
             }
             let pageWidth  = args["pageWidth"]  as? Double
             let pageHeight = args["pageHeight"] as? Double
+            let backgroundColor = args["backgroundColor"] as? String
 
             HtmlToPdfConverter.convert(
                 html: html,
                 pageWidth: pageWidth,
-                pageHeight: pageHeight
+                pageHeight: pageHeight,
+                backgroundColor: backgroundColor
             ) { data in
                 guard let data = data else {
                     result(FlutterError(code: "PDF_ERROR", message: "Failed to generate PDF data", details: nil))
@@ -103,6 +107,7 @@ private class HtmlToPdfConverter: NSObject, WKNavigationDelegate {
     private var hostWindow:   UIWindow?   // keeps the WKWebView in a live layout tree
     private let pdfPageWidth:  CGFloat
     private let pdfPageHeight: CGFloat
+    private let backgroundColor: UIColor?
     private let completion:    (Data?) -> Void
     private var completed = false
 
@@ -117,10 +122,12 @@ private class HtmlToPdfConverter: NSObject, WKNavigationDelegate {
     private init(
         pdfPageWidth:  CGFloat,
         pdfPageHeight: CGFloat,
+        backgroundColor: UIColor?,
         completion: @escaping (Data?) -> Void
     ) {
         self.pdfPageWidth  = pdfPageWidth
         self.pdfPageHeight = pdfPageHeight
+        self.backgroundColor = backgroundColor
         self.completion    = completion
 
         // PDF points → CSS px:  px = pt × (96/72)
@@ -164,13 +171,15 @@ private class HtmlToPdfConverter: NSObject, WKNavigationDelegate {
         html:       String,
         pageWidth:  Double?,
         pageHeight: Double?,
+        backgroundColor: String?,
         completion: @escaping (Data?) -> Void
     ) {
         // Must create WKWebView on the main thread.
         DispatchQueue.main.async {
             let w = CGFloat(pageWidth  ?? 595.2)
             let h = CGFloat(pageHeight ?? 841.8)
-            let conv = HtmlToPdfConverter(pdfPageWidth: w, pdfPageHeight: h, completion: completion)
+            let bgColor = backgroundColor.flatMap { Self.parseHexColor($0) }
+            let conv = HtmlToPdfConverter(pdfPageWidth: w, pdfPageHeight: h, backgroundColor: bgColor, completion: completion)
             instances.insert(conv)
             conv.webView.loadHTMLString(Self.injectPrintColorAdjust(into: html), baseURL: nil)
         }
@@ -342,6 +351,38 @@ private class HtmlToPdfConverter: NSObject, WKNavigationDelegate {
         }
     }
 
+    private static func parseHexColor(_ hex: String) -> UIColor? {
+        var h = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard h.hasPrefix("#") else { return nil }
+        h.removeFirst()
+
+        // Expand shorthand #RGB → #RRGGBB
+        if h.count == 3 {
+            h = h.map { "\($0)\($0)" }.joined()
+        }
+
+        var rgbValue: UInt64 = 0
+        guard Scanner(string: h).scanHexInt64(&rgbValue) else { return nil }
+
+        if h.count == 6 {
+            return UIColor(
+                red:   CGFloat((rgbValue >> 16) & 0xFF) / 255.0,
+                green: CGFloat((rgbValue >> 8)  & 0xFF) / 255.0,
+                blue:  CGFloat( rgbValue        & 0xFF) / 255.0,
+                alpha: 1.0
+            )
+        } else if h.count == 8 {
+            // CSS 8-digit hex: RRGGBBAA
+            return UIColor(
+                red:   CGFloat((rgbValue >> 24) & 0xFF) / 255.0,
+                green: CGFloat((rgbValue >> 16) & 0xFF) / 255.0,
+                blue:  CGFloat((rgbValue >> 8)  & 0xFF) / 255.0,
+                alpha: CGFloat( rgbValue        & 0xFF) / 255.0
+            )
+        }
+        return nil
+    }
+
     private func exportPDF() {
         let paperRect     = CGRect(x: 0, y: 0, width: pdfPageWidth, height: pdfPageHeight)
         let printableRect = paperRect   // no extra margins; caller controls via HTML/CSS
@@ -359,6 +400,12 @@ private class HtmlToPdfConverter: NSObject, WKNavigationDelegate {
         renderer.prepare(forDrawingPages: NSRange(location: 0, length: renderer.numberOfPages))
         for i in 0 ..< renderer.numberOfPages {
             UIGraphicsBeginPDFPage()
+
+            if let bgColor = backgroundColor {
+                bgColor.setFill()
+                UIRectFill(UIGraphicsGetPDFContextBounds())
+            }
+
             renderer.drawPage(at: i, in: UIGraphicsGetPDFContextBounds())
 
             // Overlay PDF URI annotations for every hyperlink on this page.

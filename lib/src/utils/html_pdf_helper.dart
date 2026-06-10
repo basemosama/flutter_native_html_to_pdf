@@ -74,6 +74,10 @@ $fontLinks  <style>
     thead { display: table-header-group; }
     tfoot { display: table-footer-group; }
     img, svg { max-width: 100%; height: auto; }
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
 $breakCss  </style>
 </head>
 <body>
@@ -106,6 +110,23 @@ $html
     final cssPageH = pageHeightPt * 96.0 / 72.0;
     final selectorList =
         selectors.map((s) => "'${s.replaceAll("'", "\\'")}'").join(', ');
+
+    // Override CSS page-break-inside for the target selectors in print mode
+    // so only the JS script controls page breaks (with padding).
+    // Also reset @page margin to 0 so the JS page-height calculation
+    // matches the actual content area per page.
+    final selectorCss = selectors.join(',\n  ');
+    final overrideStyle = '''
+<style>
+@media print {
+  @page { margin: 0 !important; }
+  $selectorCss {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+}
+</style>
+''';
 
     final script = '''
 <script>
@@ -146,12 +167,13 @@ $html
 </script>
 ''';
 
+    final injection = '$overrideStyle$script';
     final bodyClose =
         RegExp('</body>', caseSensitive: false).firstMatch(html);
     if (bodyClose != null) {
-      return html.replaceRange(bodyClose.start, bodyClose.start, script);
+      return html.replaceRange(bodyClose.start, bodyClose.start, injection);
     }
-    return '$html$script';
+    return '$html$injection';
   }
 
   static String _buildGoogleFontLinks(List<String> googleFonts) {
@@ -217,6 +239,10 @@ $html
   thead { display: table-header-group; }
   tfoot { display: table-footer-group; }
   tr { page-break-inside: avoid; }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 $breakCss</style>
 ''';
     content = _insertIntoHead(content, pdfStyle);

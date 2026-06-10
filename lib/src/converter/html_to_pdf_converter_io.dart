@@ -47,6 +47,7 @@ class HtmlToPdfConverter {
         padding: wrapOpts.pageBreakPadding,
       );
     }
+    final backgroundColor = options?.wrapOptions?.backgroundColor;
     final String? filePath = await _channel.invokeMethod<String>(
       'convertHtmlToPdf',
       {
@@ -55,6 +56,7 @@ class HtmlToPdfConverter {
         'targetName': targetName,
         if (pageSize != null) 'pageWidth': pageSize.width,
         if (pageSize != null) 'pageHeight': pageSize.height,
+        if (backgroundColor != null) 'backgroundColor': backgroundColor,
       },
     );
 
@@ -91,12 +93,15 @@ class HtmlToPdfConverter {
         padding: wrapOpts.pageBreakPadding,
       );
     }
+    final bytesBackgroundColor = options?.wrapOptions?.backgroundColor;
     final Uint8List? bytes = await _channel.invokeMethod<Uint8List>(
       'convertHtmlToPdfBytes',
       {
         'html': preparedHtml,
         if (pageSize != null) 'pageWidth': pageSize.width,
         if (pageSize != null) 'pageHeight': pageSize.height,
+        if (bytesBackgroundColor != null)
+          'backgroundColor': bytesBackgroundColor,
       },
     );
 
