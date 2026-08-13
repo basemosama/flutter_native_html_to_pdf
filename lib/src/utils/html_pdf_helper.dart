@@ -1,4 +1,5 @@
 import '../models/pdf_options.dart';
+import '../models/pdf_page_size.dart';
 
 /// Utilities for preparing HTML content for PDF conversion.
 ///
@@ -24,12 +25,15 @@ class HtmlPdfHelper {
   static String wrapHtml(
     String html, {
     HtmlWrapOptions options = const HtmlWrapOptions(),
+    PdfPageSize pageSize = PdfPageSize.a4,
   }) {
     final dir = options.direction == PdfTextDirection.rtl ? 'rtl' : 'ltr';
     final lang = options.language;
     final fontFamily = options.fontFamily ?? 'system-ui, sans-serif';
     final googleFonts = options.googleFonts;
     final bg = options.backgroundColor ?? 'white';
+    final pageCssSize = _buildPageCssSize(pageSize);
+    final pageCssMargin = _buildPageCssMargin(pageSize);
 
     if (RegExp(r'<html\b[^>]*>', caseSensitive: false).hasMatch(html)) {
       return _injectMetadata(
@@ -40,6 +44,8 @@ class HtmlPdfHelper {
         googleFonts: googleFonts,
         avoidBreakInsideSelectors: options.avoidBreakInsideSelectors,
         backgroundColor: bg,
+        pageCssSize: pageCssSize,
+        pageCssMargin: pageCssMargin,
       );
     }
 
@@ -53,7 +59,7 @@ class HtmlPdfHelper {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 $fontLinks  <style>
-    @page { size: A4; margin: 12mm; }
+    @page { size: $pageCssSize; margin: $pageCssMargin; }
     html, body {
       margin: 0;
       padding: 0;
@@ -200,6 +206,8 @@ $html
     required List<String> googleFonts,
     List<String> avoidBreakInsideSelectors = const [],
     String backgroundColor = 'white',
+    String pageCssSize = 'A4',
+    String pageCssMargin = '12mm',
   }) {
     var content = html.replaceFirstMapped(
       RegExp(r'<html\b([^>]*)>', caseSensitive: false),
@@ -229,7 +237,7 @@ $html
     final breakCss = _buildBreakInsideCss(avoidBreakInsideSelectors);
     final pdfStyle = '''
 <style>
-  @page { size: A4; margin: 12mm; }
+  @page { size: $pageCssSize; margin: $pageCssMargin; }
   html, body {
     font-family: $fontFamily;
     direction: $dir;
@@ -248,6 +256,26 @@ $breakCss</style>
     content = _insertIntoHead(content, pdfStyle);
     return content;
   }
+
+
+  static String _buildPageCssSize(PdfPageSize pageSize) {
+    final widthMm = _pointsToMillimeters(pageSize.width).toStringAsFixed(2);
+    final heightMm = _pointsToMillimeters(pageSize.height).toStringAsFixed(2);
+    return '${widthMm}mm ${heightMm}mm';
+  }
+
+  static String _buildPageCssMargin(PdfPageSize pageSize) {
+    final shortestSideMm = _pointsToMillimeters(
+      pageSize.width < pageSize.height ? pageSize.width : pageSize.height,
+    );
+    final marginMm = shortestSideMm >= 290 ? 8.0 : 12.0;
+    return '${marginMm.toStringAsFixed(0)}mm';
+  }
+
+  static double _pointsToMillimeters(double points) {
+    return points * 25.4 / 72.0;
+  }
+
 
   static String _insertIntoHead(String html, String insertion) {
     final closeHead =

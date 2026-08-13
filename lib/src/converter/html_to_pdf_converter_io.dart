@@ -36,7 +36,11 @@ class HtmlToPdfConverter {
   }) async {
     final pageSize = options?.pageSize;
     var preparedHtml = options?.wrapOptions != null
-        ? HtmlPdfHelper.wrapHtml(html, options: options!.wrapOptions!)
+        ? HtmlPdfHelper.wrapHtml(
+            html,
+            options: options!.wrapOptions!,
+            pageSize: options.pageSize,
+          )
         : html;
     final wrapOpts = options?.wrapOptions;
     if (wrapOpts != null && wrapOpts.avoidBreakInsideSelectors.isNotEmpty) {
@@ -82,7 +86,11 @@ class HtmlToPdfConverter {
   }) async {
     final pageSize = options?.pageSize;
     var preparedHtml = options?.wrapOptions != null
-        ? HtmlPdfHelper.wrapHtml(html, options: options!.wrapOptions!)
+        ? HtmlPdfHelper.wrapHtml(
+            html,
+            options: options!.wrapOptions!,
+            pageSize: options.pageSize,
+          )
         : html;
     final wrapOpts = options?.wrapOptions;
     if (wrapOpts != null && wrapOpts.avoidBreakInsideSelectors.isNotEmpty) {

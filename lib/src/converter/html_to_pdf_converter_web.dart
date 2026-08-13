@@ -28,7 +28,11 @@ class HtmlToPdfConverter {
   }) async {
     final pageSize = options?.pageSize;
     final preparedHtml = options?.wrapOptions != null
-        ? HtmlPdfHelper.wrapHtml(html, options: options!.wrapOptions!)
+        ? HtmlPdfHelper.wrapHtml(
+            html,
+            options: options!.wrapOptions!,
+            pageSize: options.pageSize,
+          )
         : html;
     final selectors = options?.wrapOptions?.avoidBreakInsideSelectors ?? [];
     final breakPadding = options?.wrapOptions?.pageBreakPadding ?? 12.0;
