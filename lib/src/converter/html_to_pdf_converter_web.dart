@@ -32,6 +32,7 @@ class HtmlToPdfConverter {
         : html;
     final selectors = options?.wrapOptions?.avoidBreakInsideSelectors ?? [];
     final breakPadding = options?.wrapOptions?.pageBreakPadding ?? 12.0;
+    final webOptions = options?.webOptions ?? const PdfWebOptions();
     final Uint8List? bytes = await _channel.invokeMethod<Uint8List>(
       'convertHtmlToPdfBytes',
       {
@@ -40,6 +41,13 @@ class HtmlToPdfConverter {
         if (pageSize != null) 'pageHeight': pageSize.height,
         if (selectors.isNotEmpty) 'avoidBreakSelectors': selectors,
         'pageBreakPadding': breakPadding,
+        'webImageFormat': webOptions.imageFormat.name,
+        'webJpegQuality': webOptions.jpegQuality,
+        'webFlattenVisualEffects':
+            webOptions.flattenVisualEffectsForLargeDocuments,
+        'webLargeDocumentPageThreshold':
+            webOptions.largeDocumentPageThreshold,
+        'webYieldBetweenPages': webOptions.yieldBetweenPages,
       },
     );
 

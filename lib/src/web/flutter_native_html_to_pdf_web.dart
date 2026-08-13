@@ -13,6 +13,11 @@ external JSPromise<JSAny?> _callHelper(
   JSNumber height,
   JSArray<JSString> avoidBreakSelectors,
   JSNumber pageBreakPadding,
+  JSString imageFormat,
+  JSNumber jpegQuality,
+  JSBoolean flattenVisualEffects,
+  JSNumber largeDocumentPageThreshold,
+  JSBoolean yieldBetweenPages,
 );
 
 class FlutterNativeHtmlToPdfWeb {
@@ -33,12 +38,26 @@ class FlutterNativeHtmlToPdfWeb {
         final html = args['html'] as String;
         final pageWidth = args['pageWidth'] as double?;
         final pageHeight = args['pageHeight'] as double?;
-        final selectors = (args['avoidBreakSelectors'] as List?)
-                ?.cast<String>() ??
-            [];
+        final selectors = (args['avoidBreakSelectors'] as List?)?.cast<String>() ?? [];
         final breakPadding = (args['pageBreakPadding'] as num?)?.toDouble() ?? 12.0;
+        final imageFormat = (args['webImageFormat'] as String?) ?? 'auto';
+        final jpegQuality = (args['webJpegQuality'] as num?)?.toDouble() ?? 0.86;
+        final flattenVisualEffects = args['webFlattenVisualEffects'] as bool? ?? true;
+        final largeDocumentPageThreshold =
+            (args['webLargeDocumentPageThreshold'] as num?)?.toInt() ?? 8;
+        final yieldBetweenPages = args['webYieldBetweenPages'] as bool? ?? true;
         return _convertHtmlToPdfBytes(
-            html, pageWidth, pageHeight, selectors, breakPadding);
+          html,
+          pageWidth,
+          pageHeight,
+          selectors,
+          breakPadding,
+          imageFormat,
+          jpegQuality,
+          flattenVisualEffects,
+          largeDocumentPageThreshold,
+          yieldBetweenPages,
+        );
       case 'convertHtmlToPdf':
         throw PlatformException(
           code: 'UNSUPPORTED',
@@ -59,6 +78,11 @@ class FlutterNativeHtmlToPdfWeb {
     double? pageHeight,
     List<String> avoidBreakSelectors,
     double breakPadding,
+    String imageFormat,
+    double jpegQuality,
+    bool flattenVisualEffects,
+    int largeDocumentPageThreshold,
+    bool yieldBetweenPages,
   ) async {
     final width = pageWidth ?? 595.2;
     final height = pageHeight ?? 841.8;
@@ -67,7 +91,17 @@ class FlutterNativeHtmlToPdfWeb {
 
     final jsSelectors = avoidBreakSelectors.map((s) => s.toJS).toList().toJS;
     final promise = _callHelper(
-        html.toJS, width.toJS, height.toJS, jsSelectors, breakPadding.toJS);
+      html.toJS,
+      width.toJS,
+      height.toJS,
+      jsSelectors,
+      breakPadding.toJS,
+      imageFormat.toJS,
+      jpegQuality.toJS,
+      flattenVisualEffects.toJS,
+      largeDocumentPageThreshold.toJS,
+      yieldBetweenPages.toJS,
+    );
     final result = await promise.toDart;
     if (result == null) {
       throw PlatformException(
@@ -87,18 +121,25 @@ class FlutterNativeHtmlToPdfWeb {
     if (_helperLoaded) return;
     await _ensureHtml2PdfLoaded();
 
-    final script =
-        web.document.createElement('script') as web.HTMLScriptElement;
-    script.textContent = r'''
-window.__flutterHtmlToPdf = function(htmlString, pageWidth, pageHeight, avoidBreakSelectors, pageBreakPadding) {
+    final script = web.document.createElement('script') as web.HTMLScriptElement;
+    script.textContent = r'''window.__flutterHtmlToPdf = async function(
+  htmlString,
+  pageWidth,
+  pageHeight,
+  avoidBreakSelectors,
+  pageBreakPadding,
+  imageFormat,
+  jpegQuality,
+  flattenVisualEffects,
+  largeDocumentPageThreshold,
+  yieldBetweenPages
+) {
   var cssWidth = pageWidth * 96.0 / 72.0;
+  var cssPageHeight = pageHeight * 96.0 / 72.0;
 
   var parser = new DOMParser();
   var doc = parser.parseFromString(htmlString, 'text/html');
 
-  // Move <link rel="stylesheet"> and <link rel="preconnect"> to the real
-  // document <head> so the browser loads fonts/stylesheets properly.
-  // (<link> tags don't work inside <div>.)
   var addedLinks = [];
   var links = doc.querySelectorAll('head link');
   for (var i = 0; i < links.length; i++) {
@@ -107,57 +148,129 @@ window.__flutterHtmlToPdf = function(htmlString, pageWidth, pageHeight, avoidBre
     addedLinks.push(clone);
   }
 
-  // Build the rendering container.
   var container = document.createElement('div');
+  container.style.position = 'absolute';
+  container.style.left = '-100000px';
+  container.style.top = '0';
   container.style.width = cssWidth + 'px';
   container.style.overflowX = 'hidden';
+  container.style.overflowY = 'visible';
+  container.style.boxSizing = 'border-box';
 
-  // Copy body inline styles (font-family, direction, margin, etc.)
   var bodyStyle = doc.body.getAttribute('style');
-  if (bodyStyle) container.setAttribute('style', 'width:' + cssWidth + 'px;overflow-x:hidden;' + bodyStyle);
-
-  // Copy ALL <style> tags (from <head> and <body>)
-  var styles = doc.querySelectorAll('style');
-  for (var i = 0; i < styles.length; i++) {
-    container.appendChild(styles[i].cloneNode(true));
+  if (bodyStyle) {
+    container.setAttribute('style', bodyStyle);
+    container.style.position = 'absolute';
+    container.style.left = '-100000px';
+    container.style.top = '0';
+    container.style.width = cssWidth + 'px';
+    container.style.overflowX = 'hidden';
+    container.style.overflowY = 'visible';
+    container.style.boxSizing = 'border-box';
   }
 
-  // Move body children (the actual content) into the container
+  var styles = doc.querySelectorAll('style');
+  for (var j = 0; j < styles.length; j++) {
+    container.appendChild(styles[j].cloneNode(true));
+  }
+
   while (doc.body.firstChild) {
     container.appendChild(doc.body.firstChild);
   }
 
-  // html2canvas renders each character individually when letter-spacing
-  // is set, which breaks Arabic ligature connections. Reset it.
   var fixStyle = document.createElement('style');
-  fixStyle.textContent = '* { letter-spacing: normal !important; }';
+  fixStyle.textContent = [
+    '* { letter-spacing: normal !important; }',
+    '* { animation: none !important; transition: none !important; }',
+    'html, body { margin: 0 !important; padding: 0 !important; }'
+  ].join(' ');
   container.insertBefore(fixStyle, container.firstChild);
 
   document.body.appendChild(container);
 
+  var flattenStyle = null;
+
   function cleanup() {
-    document.body.removeChild(container);
+    if (flattenStyle && flattenStyle.parentNode) {
+      flattenStyle.parentNode.removeChild(flattenStyle);
+    }
+    if (container.parentNode) {
+      container.parentNode.removeChild(container);
+    }
     for (var i = 0; i < addedLinks.length; i++) {
-      if (addedLinks[i].parentNode) addedLinks[i].parentNode.removeChild(addedLinks[i]);
+      if (addedLinks[i].parentNode) {
+        addedLinks[i].parentNode.removeChild(addedLinks[i]);
+      }
     }
   }
 
-  // Pre-convert SVG data-URI <img> tags to PNG so html2canvas can render them.
+  function nextFrame() {
+    return new Promise(function(resolve) {
+      requestAnimationFrame(function() {
+        requestAnimationFrame(resolve);
+      });
+    });
+  }
+
+  function yieldToBrowser(timeout) {
+    return new Promise(function(resolve) {
+      if (!yieldBetweenPages) {
+        resolve();
+        return;
+      }
+      if (window.requestIdleCallback) {
+        window.requestIdleCallback(function() { resolve(); }, { timeout: timeout || 16 });
+        return;
+      }
+      setTimeout(resolve, timeout || 16);
+    });
+  }
+
+  function waitForFonts() {
+    if (!document.fonts || !document.fonts.ready) {
+      return Promise.resolve();
+    }
+    return document.fonts.ready.catch(function() {});
+  }
+
+  function waitForImages(root) {
+    var images = Array.prototype.slice.call(root.querySelectorAll('img'));
+    if (images.length === 0) {
+      return Promise.resolve();
+    }
+
+    return Promise.all(images.map(function(img) {
+      if (img.complete) {
+        return Promise.resolve();
+      }
+      return new Promise(function(resolve) {
+        var done = function() {
+          img.removeEventListener('load', done);
+          img.removeEventListener('error', done);
+          resolve();
+        };
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener('error', done, { once: true });
+      });
+    }));
+  }
+
   function rasterizeSvgImages() {
     var svgImgs = container.querySelectorAll('img[src^="data:image/svg"]');
     var promises = [];
     svgImgs.forEach(function(imgEl) {
       promises.push(new Promise(function(resolve) {
-        // Use the DOM-rendered dimensions, not naturalWidth/Height
-        // (SVGs without explicit width/height return wrong natural sizes).
         var w = imgEl.clientWidth || imgEl.offsetWidth;
         var h = imgEl.clientHeight || imgEl.offsetHeight;
-        if (!w || !h) { resolve(); return; }
+        if (!w || !h) {
+          resolve();
+          return;
+        }
 
         var tmp = new Image();
         tmp.onload = function() {
           var c = document.createElement('canvas');
-          var s = 4; // high-res rasterization
+          var s = 2;
           c.width = w * s;
           c.height = h * s;
           var ctx = c.getContext('2d');
@@ -173,18 +286,13 @@ window.__flutterHtmlToPdf = function(htmlString, pageWidth, pageHeight, avoidBre
     return Promise.all(promises);
   }
 
-  // Simulate page-break-inside:avoid for web. Native print engines
-  // (Android/iOS) handle this via CSS, but html2canvas ignores it.
-  // Walk elements matching the selectors and insert spacers to push
-  // elements that cross page boundaries to the next page.
   function avoidPageBreaks() {
-    if (!avoidBreakSelectors || avoidBreakSelectors.length === 0) return;
+    if (!avoidBreakSelectors || avoidBreakSelectors.length === 0) {
+      return;
+    }
 
-    var cssPageH = pageHeight * 96.0 / 72.0;
     var selector = avoidBreakSelectors.join(', ');
 
-    // Multiple passes: pushing element A down can cause element B
-    // to cross a different page boundary. Repeat until stable.
     for (var pass = 0; pass < 10; pass++) {
       var changed = false;
       var elements = container.querySelectorAll(selector);
@@ -196,78 +304,202 @@ window.__flutterHtmlToPdf = function(htmlString, pageWidth, pageHeight, avoidBre
         var top = rect.top - containerTop;
         var bottom = top + rect.height;
 
-        var startPage = Math.floor(top / cssPageH);
-        var endPage = Math.floor((bottom - 1) / cssPageH);
+        var startPage = Math.floor(top / cssPageHeight);
+        var endPage = Math.floor((bottom - 1) / cssPageHeight);
 
-        if (startPage !== endPage && rect.height < cssPageH * 0.85) {
-          var pushDown = (startPage + 1) * cssPageH - top + (pageBreakPadding || 0);
+        if (startPage !== endPage && rect.height < cssPageHeight * 0.85) {
+          var pushDown = (startPage + 1) * cssPageHeight - top + (pageBreakPadding || 0);
           el.style.marginTop = (parseFloat(el.style.marginTop || 0) + pushDown) + 'px';
-          container.offsetHeight; // force reflow
+          container.offsetHeight;
           changed = true;
         }
       }
 
-      if (!changed) break;
+      if (!changed) {
+        break;
+      }
     }
   }
 
-  // Wait for web fonts, then rasterize SVGs, then avoid page breaks, then capture.
-  return document.fonts.ready.then(function() {
-    return rasterizeSvgImages();
-  }).then(function() {
-    return new Promise(function(resolve) { setTimeout(resolve, 200); });
-  }).then(function() {
-    avoidPageBreaks();
-    return html2canvas(container, {
-      scale: 2,
+  function resolveBackgroundColor() {
+    var colors = [
+      window.getComputedStyle(container).backgroundColor,
+      window.getComputedStyle(document.body).backgroundColor,
+      window.getComputedStyle(document.documentElement).backgroundColor,
+    ];
+
+    for (var i = 0; i < colors.length; i++) {
+      var color = colors[i];
+      if (color && color !== 'rgba(0, 0, 0, 0)' && color !== 'transparent') {
+        return color;
+      }
+    }
+
+    return '#ffffff';
+  }
+
+  function computeRenderScale(totalHeight) {
+    var estimatedPages = Math.max(1, Math.ceil(totalHeight / cssPageHeight));
+    if (estimatedPages > 24) {
+      return 1;
+    }
+    if (estimatedPages > 12) {
+      return 1.15;
+    }
+    if (estimatedPages > 6) {
+      return 1.35;
+    }
+    return 1.75;
+  }
+
+  function applyLargeDocumentOptimizations() {
+    flattenStyle = document.createElement('style');
+    flattenStyle.textContent = [
+      '* { box-shadow: none !important; text-shadow: none !important; filter: none !important; backdrop-filter: none !important; }',
+      '*::before, *::after { box-shadow: none !important; text-shadow: none !important; filter: none !important; backdrop-filter: none !important; }'
+    ].join(' ');
+    container.insertBefore(flattenStyle, container.firstChild);
+  }
+
+  function resolveImageSettings(isLargeDocument) {
+    var normalized = (imageFormat || 'auto').toLowerCase();
+    if (normalized === 'jpeg') {
+      return { format: 'JPEG', mimeType: 'image/jpeg', quality: jpegQuality || 0.86 };
+    }
+    if (normalized === 'png') {
+      return { format: 'PNG', mimeType: 'image/png', quality: 1 };
+    }
+    if (isLargeDocument) {
+      return { format: 'JPEG', mimeType: 'image/jpeg', quality: jpegQuality || 0.86 };
+    }
+    return { format: 'PNG', mimeType: 'image/png', quality: 1 };
+  }
+
+  function renderPage(pageTop, pageHeightCss, renderScale, backgroundColor) {
+    var viewport = document.createElement('div');
+    viewport.style.position = 'absolute';
+    viewport.style.left = '-100000px';
+    viewport.style.top = '0';
+    viewport.style.width = cssWidth + 'px';
+    viewport.style.height = Math.max(1, Math.ceil(pageHeightCss)) + 'px';
+    viewport.style.overflow = 'hidden';
+    viewport.style.background = backgroundColor;
+    viewport.style.boxSizing = 'border-box';
+
+    var cloned = container.cloneNode(true);
+    cloned.style.position = 'relative';
+    cloned.style.left = '0';
+    cloned.style.width = cssWidth + 'px';
+    cloned.style.overflow = 'hidden';
+    cloned.style.top = (-pageTop) + 'px';
+    cloned.style.boxSizing = 'border-box';
+
+    viewport.appendChild(cloned);
+    document.body.appendChild(viewport);
+
+    return html2canvas(viewport, {
+      scale: renderScale,
       useCORS: true,
-      scrollY: 0
+      backgroundColor: backgroundColor,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: Math.ceil(cssWidth),
+      windowHeight: Math.max(1, Math.ceil(pageHeightCss)),
+      imageTimeout: 0,
+      logging: false,
+      removeContainer: true,
+    }).then(function(canvas) {
+      if (viewport.parentNode) {
+        viewport.parentNode.removeChild(viewport);
+      }
+      return canvas;
+    }).catch(function(error) {
+      if (viewport.parentNode) {
+        viewport.parentNode.removeChild(viewport);
+      }
+      throw error;
     });
-  }).then(function(canvas) {
+  }
+
+  try {
+    await waitForFonts();
+    await waitForImages(container);
+    await rasterizeSvgImages();
+    await nextFrame();
+    avoidPageBreaks();
+    await nextFrame();
+
+    var totalHeight = Math.max(
+      container.scrollHeight,
+      container.offsetHeight,
+      Math.ceil(container.getBoundingClientRect().height)
+    );
+    var backgroundColor = resolveBackgroundColor();
+    var renderScale = computeRenderScale(totalHeight);
+    var totalPages = Math.max(1, Math.ceil(totalHeight / cssPageHeight));
+    var isLargeDocument = totalPages >= (largeDocumentPageThreshold || 8);
+    var imageSettings = resolveImageSettings(isLargeDocument);
+
+    if (isLargeDocument && flattenVisualEffects) {
+      applyLargeDocumentOptimizations();
+      await nextFrame();
+    }
+
     var pdf = new jspdf.jsPDF({
       unit: 'pt',
       format: [pageWidth, pageHeight],
       orientation: pageWidth > pageHeight ? 'landscape' : 'portrait'
     });
 
-    var canvasPageHeight = Math.floor(canvas.width * pageHeight / pageWidth);
-    var totalPages = Math.ceil(canvas.height / canvasPageHeight);
+    for (var pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+      if (pageIndex > 0) {
+        pdf.addPage();
+      }
 
-    for (var p = 0; p < totalPages; p++) {
-      if (p > 0) pdf.addPage();
+      await yieldToBrowser(pageIndex === 0 ? 0 : 16);
 
-      var sliceH = Math.min(canvasPageHeight, canvas.height - p * canvasPageHeight);
-      var sliceCanvas = document.createElement('canvas');
-      sliceCanvas.width = canvas.width;
-      sliceCanvas.height = sliceH;
-      var sliceCtx = sliceCanvas.getContext('2d');
-      sliceCtx.drawImage(
-        canvas,
-        0, p * canvasPageHeight, canvas.width, sliceH,
-        0, 0, canvas.width, sliceH
+      var pageTop = pageIndex * cssPageHeight;
+      var remainingHeight = totalHeight - pageTop;
+      var pageHeightCss = Math.max(1, Math.min(cssPageHeight, remainingHeight));
+      var pageCanvas = await renderPage(
+        pageTop,
+        pageHeightCss,
+        renderScale,
+        backgroundColor,
+      );
+      var imageData = pageCanvas.toDataURL(imageSettings.mimeType, imageSettings.quality);
+      var imageHeightPt = pageCanvas.height * pageWidth / pageCanvas.width;
+
+      pdf.addImage(
+        imageData,
+        imageSettings.format,
+        0,
+        0,
+        pageWidth,
+        imageHeightPt,
+        undefined,
+        'FAST',
       );
 
-      var sliceData = sliceCanvas.toDataURL('image/jpeg', 0.98);
-      var sliceImgH = sliceH * pageWidth / canvas.width;
-      pdf.addImage(sliceData, 'JPEG', 0, 0, pageWidth, sliceImgH);
+      pageCanvas.width = 1;
+      pageCanvas.height = 1;
+      await nextFrame();
     }
 
     cleanup();
     return pdf.output('arraybuffer');
-  }).catch(function(err) {
+  } catch (error) {
     cleanup();
-    throw err;
-  });
-};
-''';
+    throw error;
+  }
+};''';
     web.document.head!.append(script);
     _helperLoaded = true;
   }
 
   Future<void> _loadScript(String url) async {
     final completer = Completer<void>();
-    final script =
-        web.document.createElement('script') as web.HTMLScriptElement;
+    final script = web.document.createElement('script') as web.HTMLScriptElement;
     script.src = url;
     script.type = 'text/javascript';
 

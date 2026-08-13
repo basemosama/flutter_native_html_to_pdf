@@ -105,6 +105,7 @@ private class HtmlToPdfConverter: NSObject, WKNavigationDelegate {
 
     private let webView:      WKWebView
     private var hostWindow:   UIWindow?   // keeps the WKWebView in a live layout tree
+    private var hostViewController: UIViewController?
     private let pdfPageWidth:  CGFloat
     private let pdfPageHeight: CGFloat
     private let backgroundColor: UIColor?
@@ -156,12 +157,21 @@ private class HtmlToPdfConverter: NSObject, WKNavigationDelegate {
             width: cssWidth,
             height: cssHeight
         ))
-        // Must NOT be hidden; alpha=0 makes it invisible without affecting layout.
+        let hostController = UIViewController()
+        hostController.view.backgroundColor = .clear
+        hostController.view.frame = CGRect(x: 0, y: 0, width: cssWidth, height: cssHeight)
+
+        self.webView.frame = hostController.view.bounds
+        self.webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        hostController.view.addSubview(self.webView)
+
+        win.rootViewController = hostController
+        // Must NOT be hidden; alpha>0 keeps it in a live rendering tree on iOS.
         win.isHidden = false
-        win.alpha    = 0
+        win.alpha    = 0.01
         win.windowLevel = UIWindow.Level(rawValue: -1_000)
-        win.addSubview(self.webView)
         self.hostWindow = win
+        self.hostViewController = hostController
     }
 
     // -------------------------------------------------------------------------
@@ -208,30 +218,9 @@ private class HtmlToPdfConverter: NSObject, WKNavigationDelegate {
     // -------------------------------------------------------------------------
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        // 1. Query the real rendered content height via JavaScript.
-        webView.evaluateJavaScript(
-            "Math.max(document.body.scrollHeight, document.documentElement.scrollHeight)"
-        ) { [weak self] value, _ in
+        waitForRenderableContent { [weak self] in
             guard let self = self else { return }
-
-            let jsHeight  = (value as? CGFloat) ?? CGFloat(self.pdfPageHeight * 96.0 / 72.0)
-            let cssWidth  = self.pdfPageWidth  * 96.0 / 72.0
-            let newHeight = max(jsHeight, 1)
-
-            // 2. Expand the webView to the full content height so the print
-            //    formatter can measure all pages.
-            let newFrame = CGRect(x: 0, y: 0, width: cssWidth, height: newHeight)
-            self.webView.frame  = newFrame
-            self.hostWindow?.frame = CGRect(
-                x: UIScreen.main.bounds.width + 200,
-                y: 0,
-                width: cssWidth,
-                height: newHeight
-            )
-
-            // 3. Give the engine one runloop pass to reflow, then extract link
-            //    annotations and export.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self.measureAndPrepareLayout { [weak self] in
                 guard let self = self else { return }
                 self.extractLinks { [weak self] in
                     self?.exportPDF()
@@ -254,6 +243,90 @@ private class HtmlToPdfConverter: NSObject, WKNavigationDelegate {
         withError error: Error
     ) {
         finish(nil)
+    }
+
+
+    private func waitForRenderableContent(completion: @escaping () -> Void) {
+        let js = """
+        (async function() {
+            function waitForImages() {
+                var images = Array.from(document.images || []);
+                if (images.length === 0) {
+                    return Promise.resolve();
+                }
+
+                return Promise.all(images.map(function(img) {
+                    if (img.complete) {
+                        return Promise.resolve();
+                    }
+                    return new Promise(function(resolve) {
+                        function done() {
+                            img.removeEventListener('load', done);
+                            img.removeEventListener('error', done);
+                            resolve();
+                        }
+                        img.addEventListener('load', done, { once: true });
+                        img.addEventListener('error', done, { once: true });
+                    });
+                }));
+            }
+
+            function nextFrame() {
+                return new Promise(function(resolve) {
+                    requestAnimationFrame(function() {
+                        requestAnimationFrame(resolve);
+                    });
+                });
+            }
+
+            if (document.fonts && document.fonts.ready) {
+                try { await document.fonts.ready; } catch (_) {}
+            }
+            await waitForImages();
+            await nextFrame();
+            await nextFrame();
+            return true;
+        })();
+        """
+
+        webView.evaluateJavaScript(js) { _, _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                completion()
+            }
+        }
+    }
+
+    private func measureAndPrepareLayout(completion: @escaping () -> Void) {
+        let js = "Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight)"
+        webView.evaluateJavaScript(js) { [weak self] value, _ in
+            guard let self = self else { return }
+
+            let jsHeight = (value as? CGFloat) ?? CGFloat(self.pdfPageHeight * 96.0 / 72.0)
+            let cssWidth = self.pdfPageWidth * 96.0 / 72.0
+            let newHeight = max(jsHeight, 1)
+            let offscreenX = UIScreen.main.bounds.width + 200
+
+            self.hostWindow?.frame = CGRect(
+                x: offscreenX,
+                y: 0,
+                width: cssWidth,
+                height: newHeight
+            )
+            self.hostViewController?.view.frame = CGRect(x: 0, y: 0, width: cssWidth, height: newHeight)
+            self.webView.frame = self.hostViewController?.view.bounds ?? CGRect(x: 0, y: 0, width: cssWidth, height: newHeight)
+            self.webView.scrollView.frame = self.webView.bounds
+            self.webView.scrollView.contentOffset = .zero
+            self.hostViewController?.view.setNeedsLayout()
+            self.hostViewController?.view.layoutIfNeeded()
+            self.webView.setNeedsLayout()
+            self.webView.layoutIfNeeded()
+            self.webView.scrollView.setNeedsLayout()
+            self.webView.scrollView.layoutIfNeeded()
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                completion()
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -440,7 +513,10 @@ private class HtmlToPdfConverter: NSObject, WKNavigationDelegate {
 
         // Detach and release the window.
         webView.removeFromSuperview()
+        hostViewController?.view.removeFromSuperview()
         hostWindow?.isHidden = true
+        hostWindow?.rootViewController = nil
+        hostViewController = nil
         hostWindow = nil
 
         completion(data)

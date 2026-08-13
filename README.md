@@ -1,6 +1,6 @@
 # Flutter Native HTML to PDF
 
-A Flutter plugin that converts HTML to high-quality PDF files using native platform rendering. Uses Android WebView, iOS WKWebView, and html2canvas + jsPDF on web.
+A Flutter plugin that converts HTML to high-quality PDF files using native platform rendering. Uses Android WebView, iOS WKWebView, and a page-by-page html2canvas + jsPDF pipeline on web.
 
 ## Features
 
@@ -203,6 +203,7 @@ On web, `convertHtmlToPdfBytes` uses [html2canvas](https://html2canvas.hertzen.c
 
 - `convertHtmlToPdf` (file-based) is **not supported** — throws `UnsupportedError`. Use `convertHtmlToPdfBytes` instead
 - Output is rasterized (image-based PDF), not vector. Text is not selectable in the PDF
+- Long documents are captured page by page on web instead of as one giant canvas, which reduces black/blank output on heavy reports
 - Some complex CSS (box-shadow, certain gradients) may render slightly differently than the browser
 - SVG data-URI images are automatically pre-rasterized to PNG for compatibility
 - `letter-spacing` CSS is reset to prevent Arabic ligature issues with html2canvas

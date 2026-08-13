@@ -6,6 +6,48 @@ enum PdfTextDirection {
   rtl,
 }
 
+/// Controls the image encoding used by the web renderer.
+enum PdfWebImageFormat {
+  /// Use PNG for smaller documents and JPEG for larger documents when enabled.
+  auto,
+
+  /// Always encode each rendered page as PNG.
+  png,
+
+  /// Always encode each rendered page as JPEG.
+  jpeg,
+}
+
+/// Web-specific tuning for HTML-to-PDF conversion.
+class PdfWebOptions {
+  /// Preferred page image encoding for the web raster renderer.
+  final PdfWebImageFormat imageFormat;
+
+  /// JPEG quality used when [imageFormat] is [PdfWebImageFormat.jpeg] or when
+  /// auto mode switches to JPEG for large documents.
+  final double jpegQuality;
+
+  /// When true, the web renderer strips shadows and expensive visual effects
+  /// for large documents to improve stability and avoid raster artifacts.
+  final bool flattenVisualEffectsForLargeDocuments;
+
+  /// Page-count threshold after which the document is considered large.
+  final int largeDocumentPageThreshold;
+
+  /// When true, yields back to the browser between page renders to reduce UI
+  /// thread blocking for long conversions.
+  final bool yieldBetweenPages;
+
+  const PdfWebOptions({
+    this.imageFormat = PdfWebImageFormat.auto,
+    this.jpegQuality = 0.86,
+    this.flattenVisualEffectsForLargeDocuments = true,
+    this.largeDocumentPageThreshold = 8,
+    this.yieldBetweenPages = true,
+  }) : assert(jpegQuality >= 0 && jpegQuality <= 1),
+       assert(largeDocumentPageThreshold > 0);
+}
+
 /// Options for wrapping raw HTML with a full document structure
 /// containing print-friendly CSS, font loading, and direction support.
 ///
@@ -75,8 +117,12 @@ class PdfOptions {
   /// Set to `null` (default) to pass HTML through as-is.
   final HtmlWrapOptions? wrapOptions;
 
+  /// Web-only raster tuning options.
+  final PdfWebOptions webOptions;
+
   const PdfOptions({
     this.pageSize = PdfPageSize.a4,
     this.wrapOptions,
+    this.webOptions = const PdfWebOptions(),
   });
 }
